@@ -3,18 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./EntryScreen.module.css";
 import CucumberImage from "./CucumberImage";
-import { Sunglasses } from "./CucumberDecor";
+import Wordmark from "./Wordmark";
 
-type Stage = "idle" | "spinning" | "glasses" | "pause" | "exiting";
+type Stage = "idle" | "flying" | "landed" | "exiting";
 
-// Timeline (ms from click): spin 0-600, glasses drop 600-1000,
-// settle pause 1000-1300, fade/slide out 1300-1800. Total under 2s.
-const SPIN_MS = 600;
-const DROP_MS = 400;
-const PAUSE_MS = 300;
+// Timeline (ms from click): fly into the D 0-750, impact/settle 750-1050,
+// overlay exit 1050-1550. Total well under 2s.
+const FLY_MS = 750;
+const SETTLE_MS = 300;
 const EXIT_MS = 500;
 
-function playPop() {
+/** Short synthesized "thunk" — no audio asset, and silent if blocked. */
+function playThunk() {
   try {
     const AudioCtxClass =
       window.AudioContext ||
@@ -24,15 +24,16 @@ function playPop() {
     const ctx = new AudioCtxClass();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(220, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.22);
-    gain.gain.setValueAtTime(0.22, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(320, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(58, ctx.currentTime + 0.18);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.26);
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.3);
+    osc.stop(ctx.currentTime + 0.28);
     osc.onended = () => ctx.close();
   } catch {
     // Autoplay blocked or Web Audio unsupported — fail silently, per spec.
@@ -45,6 +46,9 @@ export default function EntryScreen({
   onComplete: () => void;
 }) {
   const [stage, setStage] = useState<Stage>("idle");
+  const [ring, setRing] = useState<{ x: number; y: number } | null>(null);
+  const slotRef = useRef<HTMLSpanElement>(null);
+  const cukeRef = useRef<HTMLDivElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
@@ -55,30 +59,56 @@ export default function EntryScreen({
 
   function handleClick() {
     if (stage !== "idle") return;
-    playPop();
-    setStage("spinning");
-    timers.current.push(setTimeout(() => setStage("glasses"), SPIN_MS));
+
+    const slotEl = slotRef.current;
+    const cukeEl = cukeRef.current;
+    const slot = slotEl?.getBoundingClientRect();
+    const cuke = cukeEl?.getBoundingClientRect();
+
+    // If anything is unmeasurable (image not laid out yet, odd viewport),
+    // skip straight to the reveal rather than animating to a wrong spot.
+    if (!cukeEl || !slot || !cuke || !cuke.width || !cuke.height) {
+      onComplete();
+      return;
+    }
+
+    const dx = slot.left + slot.width / 2 - (cuke.left + cuke.width / 2);
+    const dy = slot.top + slot.height / 2 - (cuke.top + cuke.height / 2);
+
+    cukeEl.style.setProperty("--fly-x", `${dx}px`);
+    cukeEl.style.setProperty("--fly-y", `${dy}px`);
+    cukeEl.style.setProperty("--fly-sx", `${slot.width / cuke.width}`);
+    cukeEl.style.setProperty("--fly-sy", `${slot.height / cuke.height}`);
+
+    setRing({ x: slot.left + slot.width / 2, y: slot.top + slot.height / 2 });
+    playThunk();
+    setStage("flying");
+
+    timers.current.push(setTimeout(() => setStage("landed"), FLY_MS));
     timers.current.push(
-      setTimeout(() => setStage("pause"), SPIN_MS + DROP_MS)
+      setTimeout(() => setStage("exiting"), FLY_MS + SETTLE_MS)
     );
     timers.current.push(
-      setTimeout(() => setStage("exiting"), SPIN_MS + DROP_MS + PAUSE_MS)
-    );
-    timers.current.push(
-      setTimeout(onComplete, SPIN_MS + DROP_MS + PAUSE_MS + EXIT_MS)
+      setTimeout(onComplete, FLY_MS + SETTLE_MS + EXIT_MS)
     );
   }
 
-  const dropped = stage === "glasses" || stage === "pause" || stage === "exiting";
+  const landed = stage === "landed" || stage === "exiting";
 
   return (
     <div
-      className={`${styles.overlay} ${stage === "exiting" ? styles.exiting : ""}`}
+      className={`${styles.overlay} ${styles[stage]} ${stage === "exiting" ? styles.exiting : ""}`}
     >
-      <h1 className={styles.title}>Cucumber Hood</h1>
-      <div
-        className={`${styles.stage} ${stage === "spinning" ? styles.spinning : ""} ${dropped ? styles.dropped : ""}`}
-      >
+      <div className={styles.dots} />
+
+      <Wordmark
+        className={styles.wordmark}
+        slotRef={slotRef}
+        filled={false}
+        hintSlot={stage === "idle"}
+      />
+
+      <div className={styles.stage}>
         <button
           type="button"
           className={styles.cucumberBtn}
@@ -86,13 +116,16 @@ export default function EntryScreen({
           disabled={stage !== "idle"}
           aria-label="Click the cucumber to enter Cucumber Hood"
         >
-          <CucumberImage
-            className={styles.cucumberImg}
-            alt="Cucumber Hood mascot"
-          />
+          <div className={styles.cukeWrap} ref={cukeRef}>
+            <CucumberImage className={styles.cukeImg} alt="" />
+          </div>
         </button>
-        <Sunglasses className={styles.glasses} />
       </div>
+
+      {landed && ring && (
+        <span className={styles.ring} style={{ left: ring.x, top: ring.y }} />
+      )}
+
       <p className={`${styles.hint} ${stage !== "idle" ? styles.hintStill : ""}`}>
         click the cucumber
       </p>

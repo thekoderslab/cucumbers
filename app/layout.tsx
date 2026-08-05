@@ -1,11 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
+import { Bungee, Fredoka } from "next/font/google";
 import "./globals.css";
 
-const poppins = Poppins({
+// Display face for the wordmark and headlines — blocky, signage-like,
+// carries the "Hood" energy.
+const bungee = Bungee({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-poppins",
+  weight: "400",
+  variable: "--font-display",
+  display: "swap",
+});
+
+// Rounded, friendly body face (variable weight, so no `weight` needed).
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  variable: "--font-body",
   display: "swap",
 });
 
@@ -27,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={`${bungee.variable} ${fredoka.variable}`}>
       <body>{children}</body>
     </html>
   );

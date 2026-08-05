@@ -1,41 +1,67 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(14px, 4vw, 28px);
+  gap: clamp(10px, 3vw, 22px);
   background: var(--bg);
-  padding: 24px;
+  padding: 28px 20px;
   text-align: center;
   opacity: 1;
-  transform: translateY(0);
+  transform: scale(1);
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .overlay.exiting {
   opacity: 0;
-  transform: translateY(-28px);
+  transform: scale(1.06);
   pointer-events: none;
 }
 
-.title {
-  font-size: clamp(2rem, 8vw, 4.25rem);
-  font-weight: 800;
-  color: var(--ink);
-  margin: 0;
-  letter-spacing: -0.02em;
+.dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--ink) 1.4px, transparent 1.5px);
+  background-size: 20px 20px;
+  opacity: 0.09;
+}
+
+.wordmark {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(2.6rem, 13vw, 7rem);
+}
+
+.landed .wordmark {
+  animation: squash 0.32s ease-out;
+}
+
+@keyframes squash {
+  0% {
+    transform: scale(1, 1);
+  }
+  35% {
+    transform: scale(1.05, 0.93);
+  }
+  70% {
+    transform: scale(0.99, 1.02);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
 }
 
 .stage {
   position: relative;
-  width: clamp(200px, 38vw, 320px);
-  height: clamp(260px, 48vw, 380px);
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: clamp(200px, 34vh, 330px);
 }
 
 .cucumberBtn {
@@ -43,11 +69,9 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  line-height: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -55,71 +79,110 @@
   cursor: default;
 }
 
-.cucumberImg {
+/* inline-block so the wrapper shrink-wraps the cucumber. Its measured rect
+   is what the landing scale is computed from, so it must match the image
+   exactly — a block-level wrapper would span the full button width. */
+.cukeWrap {
+  display: inline-block;
+  height: 100%;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.idle .cukeWrap {
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(2deg);
+  }
+}
+
+.cukeImg {
   height: 100%;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 18px 22px rgba(11, 31, 18, 0.28));
-  transform-origin: 50% 50%;
+  filter: drop-shadow(0 16px 18px rgba(11, 31, 18, 0.3));
 }
 
-.stage.spinning .cucumberImg {
-  animation: spin 0.6s ease;
+/*
+ * The flight path. --fly-x/--fly-y/--fly-sx/--fly-sy are written onto the
+ * element at click time from the measured slot rect, so the cucumber lands
+ * exactly in the D's stem regardless of viewport size.
+ */
+.flying .cukeWrap,
+.landed .cukeWrap,
+.exiting .cukeWrap {
+  animation: fly 0.75s cubic-bezier(0.45, 0.05, 0.3, 1) forwards;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.glasses {
-  position: absolute;
-  top: 26%;
-  left: 50%;
-  width: 58%;
-  transform: translate(-50%, -260%) rotate(-14deg);
-  opacity: 0;
-}
-
-.stage.dropped .glasses {
-  animation: drop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes drop {
+@keyframes fly {
   0% {
-    transform: translate(-50%, -260%) rotate(-14deg);
-    opacity: 0;
+    transform: translate(0, 0) scale(1, 1) rotate(0deg);
   }
-  55% {
-    transform: translate(-50%, 8%) rotate(3deg);
-    opacity: 1;
+  16% {
+    transform: translate(calc(var(--fly-x) * 0.04), 30px) scale(0.93, 0.89)
+      rotate(-5deg);
   }
-  78% {
-    transform: translate(-50%, -5%) rotate(-2deg);
+  68% {
+    transform: translate(var(--fly-x), calc(var(--fly-y) - 16px))
+      scale(var(--fly-sx), var(--fly-sy)) rotate(3deg);
+  }
+  84% {
+    transform: translate(var(--fly-x), calc(var(--fly-y) + 5px))
+      scale(calc(var(--fly-sx) * 1.05), calc(var(--fly-sy) * 0.95)) rotate(0deg);
   }
   100% {
-    transform: translate(-50%, 0%) rotate(0deg);
-    opacity: 1;
+    transform: translate(var(--fly-x), var(--fly-y))
+      scale(var(--fly-sx), var(--fly-sy)) rotate(0deg);
+  }
+}
+
+/* Impact ring, positioned at the measured slot centre. */
+.ring {
+  position: fixed;
+  z-index: 4;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ring 0.45s ease-out forwards;
+}
+
+@keyframes ring {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
   }
 }
 
 .hint {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-text);
   font-size: 0.95rem;
+  font-weight: 600;
   color: var(--ink-soft);
   text-transform: lowercase;
   letter-spacing: 0.02em;
-  font-weight: 600;
   margin: 0;
   animation: pulse 1.6s ease-in-out infinite;
 }
 
 .hint.hintStill {
   animation: none;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 @keyframes pulse {
@@ -135,16 +198,22 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hint {
+  .hint,
+  .idle .cukeWrap {
     animation: none;
   }
-  .stage.spinning .cucumberImg {
+  .ring {
+    display: none;
+  }
+  .landed .wordmark {
     animation: none;
   }
-  .stage.dropped .glasses {
+  .flying .cukeWrap,
+  .landed .cukeWrap,
+  .exiting .cukeWrap {
     animation: none;
-    transform: translate(-50%, 0%) rotate(0deg);
-    opacity: 1;
+    transform: translate(var(--fly-x), var(--fly-y))
+      scale(var(--fly-sx), var(--fly-sy));
   }
   .overlay {
     transition: opacity 0.2s linear;

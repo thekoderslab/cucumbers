@@ -2,10 +2,28 @@
   --bg: #ccff00;
   --ink: #0b1f12;
   --ink-soft: #17301e;
+  --ink-mid: #2b4a34;
   --white: #ffffff;
-  --radius-lg: 28px;
-  --radius-md: 16px;
-  --font-heading: var(--font-poppins), "Poppins", system-ui, sans-serif;
+
+  --font-heading: var(--font-display), "Bungee", system-ui, sans-serif;
+  --font-text: var(--font-body), "Fredoka", system-ui, sans-serif;
+
+  /* Neo-brutalist ink-on-lime kit: hard borders + hard offset shadows. */
+  --bd: 3px solid var(--ink);
+  --bd-thick: 4px solid var(--ink);
+  --sh: 6px 6px 0 var(--ink);
+  --sh-sm: 4px 4px 0 var(--ink);
+  --sh-lg: 10px 10px 0 var(--ink);
+
+  --r-sm: 12px;
+  --r-md: 20px;
+  --r-lg: 30px;
+  --r-pill: 999px;
+
+  /* Cap height of the display font, as a fraction of font-size. Drives how
+     the custom SVG "D" lines up with the rest of the wordmark — nudge this
+     one value if the D ever sits high or low against the other letters. */
+  --cap: 0.72em;
 }
 
 * {
@@ -22,9 +40,21 @@ body {
 }
 
 body {
-  font-family: var(--font-heading);
+  font-family: var(--font-text);
+  font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.95;
+  margin: 0;
 }
 
 a {
@@ -40,6 +70,12 @@ img {
 button,
 input {
   font-family: inherit;
+}
+
+/* Focus ring that reads on lime. */
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
 }
 
 .visually-hidden {
