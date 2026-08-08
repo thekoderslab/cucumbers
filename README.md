@@ -16,7 +16,7 @@ To rename files, add more, or change captions, edit [`lib/art.ts`](lib/art.ts) �
 | --- | --- | --- |
 | `X_PROFILE` | The X account people follow | ✅ set to `x.com/CucumberHoodNFT` |
 | `X_POST` | The post to like / repost / quote | ⚠️ **placeholder — must be updated** |
-| `DISCORD` | Discord invite | ⚠️ placeholder |
+| `OPENSEA` | OpenSea collection | ⚠️ `#` placeholder |
 | `SITE` | Domain used in the share text | `cucumbershoodnft.com` |
 
 Until `X_POST` is set to the real post, tasks 2 and 3 on the join page open a dead link.

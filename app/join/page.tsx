@@ -6,7 +6,7 @@ import JoinFlow from "@/components/JoinFlow";
 import Wordmark from "@/components/Wordmark";
 import SmartImage from "@/components/SmartImage";
 import { HERO } from "@/lib/art";
-import { X_PROFILE, DISCORD } from "@/lib/config";
+import { X_PROFILE, OPENSEA, externalLinkProps } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Join the Hood — Cucumber Hood",
@@ -45,18 +45,16 @@ export default function JoinPage() {
               <a
                 className={styles.navLink}
                 href={X_PROFILE}
-                target="_blank"
-                rel="noopener noreferrer"
+                {...externalLinkProps(X_PROFILE)}
               >
                 X
               </a>
               <a
                 className={styles.navLink}
-                href={DISCORD}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={OPENSEA}
+                {...externalLinkProps(OPENSEA)}
               >
-                Discord
+                OpenSea
               </a>
             </div>
           </div>

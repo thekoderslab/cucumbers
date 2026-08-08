@@ -7,7 +7,7 @@ import SmartImage from "./SmartImage";
 import Wordmark from "./Wordmark";
 import Marquee from "./Marquee";
 import { HERO, GALLERY } from "@/lib/art";
-import { X_PROFILE, DISCORD } from "@/lib/config";
+import { X_PROFILE, OPENSEA, externalLinkProps } from "@/lib/config";
 
 const MARQUEE = [
   "Cool as a cucumber",
@@ -122,18 +122,16 @@ export default function MainPage() {
             <a
               className={styles.navLink}
               href={X_PROFILE}
-              target="_blank"
-              rel="noopener noreferrer"
+              {...externalLinkProps(X_PROFILE)}
             >
               X
             </a>
             <a
               className={styles.navLink}
-              href={DISCORD}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={OPENSEA}
+              {...externalLinkProps(OPENSEA)}
             >
-              Discord
+              OpenSea
             </a>
           </div>
         </div>
@@ -303,18 +301,16 @@ export default function MainPage() {
           <a
             className={styles.socialPill}
             href={X_PROFILE}
-            target="_blank"
-            rel="noopener noreferrer"
+            {...externalLinkProps(X_PROFILE)}
           >
             X
           </a>
           <a
             className={styles.socialPill}
-            href={DISCORD}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={OPENSEA}
+            {...externalLinkProps(OPENSEA)}
           >
-            Discord
+            OpenSea
           </a>
         </div>
       </footer>

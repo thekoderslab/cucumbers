@@ -12,7 +12,18 @@ export const X_PROFILE = "https://x.com/CucumberHoodNFT";
  */
 export const X_POST = "https://x.com/CucumberHoodNFT/status/0000000000000000000";
 
-export const DISCORD = "https://discord.gg/cucumberhood";
+/** OpenSea collection. TODO: replace "#" with the real URL when it's live. */
+export const OPENSEA = "#";
+
+/**
+ * Only add target/rel for links that actually leave the site — a "#"
+ * placeholder opening a blank tab would be a dead end.
+ */
+export function externalLinkProps(href: string) {
+  return href.startsWith("http")
+    ? { target: "_blank" as const, rel: "noopener noreferrer" }
+    : {};
+}
 
 /** Public site URL, used in the share text. */
 export const SITE = "cucumbershoodnft.com";
