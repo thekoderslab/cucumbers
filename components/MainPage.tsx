@@ -226,7 +226,7 @@ export default function MainPage() {
 
             <div className={styles.gallery}>
               {GALLERY.map((item) => (
-                <figure key={item.label} className={styles.shot}>
+                <figure key={item.id} className={styles.shot}>
                   <div className={styles.shotFrame}>
                     <SmartImage
                       sources={item.sources}
@@ -235,6 +235,7 @@ export default function MainPage() {
                       placeholderClassName={styles.shotPlaceholder}
                       placeholderLabel={item.label}
                     />
+                    <span className={styles.shotId}>#{item.id}</span>
                   </div>
                   <figcaption className={styles.shotCap}>
                     {item.label}

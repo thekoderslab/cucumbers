@@ -475,9 +475,9 @@
 }
 
 /*
- * Asymmetric collage: uneven spans, a couple of forced column starts to
- * punch holes in the grid, and staggered vertical offsets so no two rows
- * line up flat.
+ * Asymmetric collage: uneven spans, a few forced column starts to punch
+ * holes in the grid, and staggered vertical offsets so no two rows line up
+ * flat. Tuned for the 12 tiles in GALLERY.
  */
 @media (min-width: 760px) {
   .gallery {
@@ -521,6 +521,18 @@
     grid-column: span 4;
     transform: rotate(1deg);
   }
+  .shot:nth-child(10) {
+    grid-column: 2 / span 4;
+    transform: rotate(-2deg) translateY(-18px);
+  }
+  .shot:nth-child(11) {
+    grid-column: span 3;
+    transform: rotate(3deg) translateY(26px);
+  }
+  .shot:nth-child(12) {
+    grid-column: span 4;
+    transform: rotate(-1deg);
+  }
 }
 
 .shot {
@@ -533,6 +545,7 @@
 }
 
 .shotFrame {
+  position: relative;
   border: var(--bd);
   border-radius: var(--r-md);
   /* The art files carry their own lime background, so match it here. */
@@ -540,6 +553,19 @@
   box-shadow: var(--sh);
   overflow: hidden;
   aspect-ratio: 1;
+}
+
+.shotId {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 5px 9px;
+  border-radius: var(--r-pill);
 }
 
 .shotImg {

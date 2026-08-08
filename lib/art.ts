@@ -2,10 +2,8 @@
  * Every image the site uses, in one place.
  *
  * Each entry is a *fallback chain*: the first file that loads wins. That way
- * you can drop real art in whenever it's ready without touching components,
- * and nothing breaks in the meantime.
- *
- * Drop your art into `public/art/` using these filenames.
+ * art can be swapped or added without touching components, and a missing
+ * file renders a labelled placeholder instead of a broken image.
  */
 
 /**
@@ -28,18 +26,27 @@ export const HERO: string[] = [
 
 export interface ArtItem {
   sources: string[];
+  /** Character name, shown as the caption. */
   label: string;
+  /** Token number, shown as a chip on the card. */
+  id: string;
 }
 
-/** Sneak-peek gallery on The Hood tab. */
+/**
+ * Sneak-peek gallery on The Hood tab.
+ * Files live in `public/art/`; the numbers are the real token numbers.
+ */
 export const GALLERY: ArtItem[] = [
-  { sources: ["/art/fisher.png"], label: "Gone fishin'" },
-  { sources: ["/art/paperbag.png"], label: "Anon" },
-  { sources: ["/art/robin.png"], label: "Robin Hood" },
-  { sources: ["/art/sheriff.png"], label: "Sheriff" },
-  { sources: ["/art/skater.png"], label: "Fresh cap" },
-  { sources: ["/art/scientist.png"], label: "Lab work" },
-  { sources: ["/art/vampire.png"], label: "Night shift" },
-  { sources: ["/art/gamer.png"], label: "Full send" },
-  { sources: ["/art/punk.png"], label: "Punk" },
+  { sources: ["/art/cucumber-0001.png"], label: "Robin Hood", id: "0001" },
+  { sources: ["/art/cucumber-0741.png"], label: "Anon", id: "0741" },
+  { sources: ["/art/cucumber-0025.png"], label: "Punk", id: "0025" },
+  { sources: ["/art/cucumber-0177.png"], label: "The King", id: "0177" },
+  { sources: ["/art/cucumber-0002.png"], label: "Sheriff", id: "0002" },
+  { sources: ["/art/cucumber-0176.png"], label: "Wizard", id: "0176" },
+  { sources: ["/art/cucumber-0020.png"], label: "Full Send", id: "0020" },
+  { sources: ["/art/cucumber-0184.png"], label: "Shutterbug", id: "0184" },
+  { sources: ["/art/cucumber-0175.png"], label: "The General", id: "0175" },
+  { sources: ["/art/cucumber-0310.png"], label: "Chef", id: "0310" },
+  { sources: ["/art/cucumber-0246.png"], label: "Farmhand", id: "0246" },
+  { sources: ["/art/cucumber-0218.png"], label: "Inspector", id: "0218" },
 ];
