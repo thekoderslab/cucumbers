@@ -210,10 +210,11 @@
   display: inline-block;
 }
 
-/* Sized to hold its own in the right-hand column without out-shouting
-   the form card. */
+/* 650px tall, backing off only when the viewport is too short to hold it
+   (small laptops at scaled resolutions) so it never overflows the sticky
+   strip it's centred in. */
 .art {
-  height: clamp(260px, 36vw, 440px);
+  height: min(650px, calc(100vh - 140px));
   width: auto;
   object-fit: contain;
   transform: rotate(4deg);
