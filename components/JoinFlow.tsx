@@ -21,6 +21,7 @@ export default function JoinFlow() {
   const [wallet, setWallet] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [duplicate, setDuplicate] = useState(false);
   const [touched, setTouched] = useState({ quote: false, wallet: false });
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -52,6 +53,7 @@ export default function JoinFlow() {
     }
 
     setError("");
+    setDuplicate(false);
     setStatus("submitting");
 
     try {
@@ -68,6 +70,9 @@ export default function JoinFlow() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        // 409 = this wallet already has a spot. Called out on the wallet
+        // field itself rather than buried in the generic error line.
+        if (res.status === 409) setDuplicate(true);
         throw new Error(data.error || "Something went wrong. Try again.");
       }
 
@@ -189,7 +194,10 @@ export default function JoinFlow() {
               className={styles.input}
               placeholder="0x..."
               value={wallet}
-              onChange={(e) => setWallet(e.target.value)}
+              onChange={(e) => {
+                setWallet(e.target.value);
+                setDuplicate(false);
+              }}
               onBlur={() => setTouched((t) => ({ ...t, wallet: true }))}
             />
             {touched.wallet && wallet && !walletValid && (
@@ -197,10 +205,16 @@ export default function JoinFlow() {
                 Enter a valid EVM address (0x + 40 characters).
               </p>
             )}
+            {duplicate && (
+              <p className={styles.duplicate} role="alert">
+                This wallet is already on the allowlist — you&apos;re in. Use a
+                different wallet if you&apos;re entering for someone else.
+              </p>
+            )}
           </div>
         </div>
 
-        {error && <p className={styles.error}>{error}</p>}
+        {error && !duplicate && <p className={styles.error}>{error}</p>}
 
         <button
           type="submit"

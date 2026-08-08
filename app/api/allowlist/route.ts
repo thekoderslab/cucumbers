@@ -37,6 +37,16 @@ export async function POST(req: NextRequest) {
     createdAt: new Date().toISOString(),
   });
 
+  if (result.duplicate) {
+    return NextResponse.json(
+      {
+        error: "This wallet is already on the allowlist. You're in.",
+        duplicate: true,
+      },
+      { status: 409 }
+    );
+  }
+
   // Never confirm a spot we didn't actually store — a cheerful success
   // screen over a dropped entry is worse than an honest error.
   if (!result.persisted) {

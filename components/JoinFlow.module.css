@@ -165,6 +165,20 @@
   color: #7a1010;
 }
 
+/* "Already on the list" isn't a failure — it reads as information, not an
+   error, so it gets the house style rather than red text. */
+.duplicate {
+  margin: 0;
+  padding: 12px 14px;
+  border: var(--bd);
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 /* ---------- Submit ---------- */
 
 .submit {

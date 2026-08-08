@@ -2,6 +2,13 @@ import { promises as fs } from "fs";
 import path from "path";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
+export interface SaveResult {
+  persisted: boolean;
+  /** The wallet is already on the allowlist. */
+  duplicate?: boolean;
+  error?: string;
+}
+
 export interface AllowlistEntry {
   wallet: string;
   quoteUrl: string;
@@ -50,26 +57,34 @@ export function hasDatabase(): boolean {
 
 // ---------------------------------------------------------------- Supabase
 
+/** Postgres unique_violation. */
+const UNIQUE_VIOLATION = "23505";
+
 async function addEntrySupabase(
   db: SupabaseClient,
   entry: AllowlistEntry
-): Promise<{ persisted: boolean; error?: string }> {
-  const { error } = await db.from("allowlist").upsert(
-    {
-      // Lowercased so the unique constraint dedupes properly — the same
-      // address submitted with different checksum casing is one wallet.
-      wallet: entry.wallet.toLowerCase(),
-      quote_url: entry.quoteUrl,
-      handle: entry.handle ?? null,
-      followed: entry.followed,
-      reposted: entry.reposted,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "wallet" }
-  );
+): Promise<SaveResult> {
+  /*
+   * A plain insert, letting the UNIQUE (wallet) constraint reject repeats.
+   * Checking for an existing row first would leave a race: two submissions
+   * of the same wallet at once would both see "not there" and both proceed.
+   * The database is the only place that can decide this atomically.
+   */
+  const { error } = await db.from("allowlist").insert({
+    // Lowercased so the constraint dedupes properly — the same address with
+    // different checksum casing is one wallet.
+    wallet: entry.wallet.toLowerCase(),
+    quote_url: entry.quoteUrl,
+    handle: entry.handle ?? null,
+    followed: entry.followed,
+    reposted: entry.reposted,
+  });
 
   if (error) {
-    console.error("[allowlist] supabase upsert failed:", error.message);
+    if (error.code === UNIQUE_VIOLATION) {
+      return { persisted: false, duplicate: true };
+    }
+    console.error("[allowlist] supabase insert failed:", error.message);
     return { persisted: false, error: error.message };
   }
   return { persisted: true };
@@ -90,15 +105,14 @@ async function readFileEntries(): Promise<AllowlistEntry[]> {
   }
 }
 
-async function addEntryFile(
-  entry: AllowlistEntry
-): Promise<{ persisted: boolean; error?: string }> {
+async function addEntryFile(entry: AllowlistEntry): Promise<SaveResult> {
   const entries = await readFileEntries();
 
   const key = entry.wallet.toLowerCase();
-  const existing = entries.findIndex((e) => e.wallet.toLowerCase() === key);
-  if (existing >= 0) entries[existing] = entry;
-  else entries.push(entry);
+  if (entries.some((e) => e.wallet.toLowerCase() === key)) {
+    return { persisted: false, duplicate: true };
+  }
+  entries.push({ ...entry, wallet: key });
 
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
@@ -116,9 +130,7 @@ async function addEntryFile(
 
 // ------------------------------------------------------------------ Public
 
-export async function addEntry(
-  entry: AllowlistEntry
-): Promise<{ persisted: boolean; error?: string }> {
+export async function addEntry(entry: AllowlistEntry): Promise<SaveResult> {
   const db = getClient();
   return db ? addEntrySupabase(db, entry) : addEntryFile(entry);
 }
