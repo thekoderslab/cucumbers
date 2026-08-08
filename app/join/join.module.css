@@ -1,4 +1,6 @@
 .page {
+  /* Height of the sticky header — the offset the aside sticks to. */
+  --header-h: 66px;
   position: relative;
   min-height: 100vh;
   background: var(--bg);
@@ -142,10 +144,19 @@
   .card {
     grid-column: 1 / span 7;
   }
+  /*
+   * The cucumber holds still while the task list scrolls past it: sticky to
+   * the bottom of the header, given the full remaining viewport height, and
+   * its contents centred inside that. The grid row is as tall as the form
+   * card, which is what gives the sticky element room to travel.
+   */
   .aside {
     grid-column: 9 / span 4;
     position: sticky;
-    top: 96px;
+    top: var(--header-h);
+    /* Capped at 100% (the row height) so it can't spill past the form and
+       overlap the footer on very tall viewports. */
+    height: min(calc(100vh - var(--header-h)), 100%);
   }
 }
 
@@ -186,9 +197,12 @@
 
 /* ---------------- Aside art ---------------- */
 
+/* Centred both ways. On mobile the height is auto, so this is a no-op
+   there; on desktop it centres the cucumber in the sticky viewport strip. */
 .aside {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .artWrap {
