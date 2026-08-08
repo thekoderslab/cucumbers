@@ -1,18 +1,14 @@
 # Cucumber Hood
 
-Single-page Next.js (App Router + TypeScript) site for the Cucumber Hood NFT collection: a click-to-enter intro where the cucumber flies up and slots into the **D of HOOD**, revealing the main allowlist page.
+Single-page Next.js (App Router + TypeScript) site for the Cucumber Hood NFT collection: a click-to-enter intro where the cucumber flies up and slots into the **D of HOOD**, revealing a tabbed allowlist site.
 
 ## Before you deploy
 
-**1. Add the mascot image.** Save your cucumber art as:
+**1. Add your art.** Everything is driven by real image files — drop them into `public/art/` using the filenames listed in [`public/art/README.md`](public/art/README.md). Each one is optional; anything missing falls back to a placeholder tile so the site never breaks mid-build.
 
-```
-public/cucumber-base.png
-```
+The one image worth adding first is `public/art/cucumber.png` (transparent PNG) — it's the cucumber in the wordmark's D and on the entry screen.
 
-Use a **transparent PNG** — the cucumber sits directly on the lime background and inside the wordmark's D, so a white box around it will show. Until the file exists, the site falls back to a simple SVG placeholder (`public/cucumber-placeholder.svg`) so nothing breaks.
-
-Sunglasses and the cap are drawn in code (`components/CucumberDecor.tsx`) and composited over whatever image is at that path, so you only need the one base image.
+To rename files, add more, or change trait labels, edit [`lib/art.ts`](lib/art.ts) — the single source of truth for all imagery.
 
 **2. Update placeholder links.** `SOCIALS` in [`components/MainPage.tsx`](components/MainPage.tsx) has placeholder X/Discord URLs.
 
@@ -20,7 +16,12 @@ Sunglasses and the cap are drawn in code (`components/CucumberDecor.tsx`) and co
 
 - **Display font:** [Bungee](https://fonts.google.com/specimen/Bungee) — blocky signage face, carries the "Hood" energy. Used for the wordmark, headlines, buttons and labels.
 - **Body font:** [Fredoka](https://fonts.google.com/specimen/Fredoka) — rounded and friendly.
-- **Look:** screen-printed / sticker style — everything is dark ink on `#CCFF00`, with thick borders, hard offset shadows, slight rotations, a subtle dot texture and scrolling marquee bars. The page background stays `#CCFF00` everywhere; contrast comes from ink-filled components (buttons, badges, marquee bars), not from other background colors.
+- **Look:** screen-printed / sticker style — everything is dark ink on `#CCFF00`, with thick borders, hard offset shadows, slight rotations, a subtle dot texture and scrolling marquee bars. The page background stays `#CCFF00` everywhere; contrast comes from ink-filled components (buttons, badges, dark panels, marquee bars), not from other background colors.
+- **Layout:** deliberately asymmetric. Every section runs on a 12-column grid with lopsided spans, off-axis type, staggered cards and rotated panels rather than centered blocks.
+
+## Tabs
+
+The site stays on a single route (`/`). The main page is a tabbed interface — **Home**, **The Hood**, **Traits**, **Join** — switched with client-side state in [`components/MainPage.tsx`](components/MainPage.tsx). Tabs are a proper ARIA `tablist` with arrow-key/Home/End navigation.
 
 Swapping the fonts is a two-line change in [`app/layout.tsx`](app/layout.tsx) — both are wired through the `--font-display` / `--font-body` CSS variables in [`app/globals.css`](app/globals.css).
 
@@ -69,8 +70,10 @@ The rest of the app only calls `addEntry()` / `getAllEntries()`, so the swap is 
 - `app/page.tsx` — shows the entry animation once per session, then the main page underneath
 - `components/Wordmark.tsx` — the CUCUMBER HOOD wordmark with the cucumber-as-D
 - `components/EntryScreen.tsx` — click-to-enter animation
-- `components/MainPage.tsx` — header, hero, vibes cards, allowlist, trait preview, footer
+- `components/MainPage.tsx` — tabs + all four panels
+- `components/SmartImage.tsx` — image with a fallback chain and placeholder tile
 - `components/Marquee.tsx` — scrolling sticker bars
 - `components/AllowlistForm.tsx` — signup form (wallet, optional email, X handle)
 - `app/api/allowlist/route.ts` — validates and stores submissions
+- `lib/art.ts` — every image path and label used on the site
 - `lib/storage.ts` — storage layer (see the Vercel note above)

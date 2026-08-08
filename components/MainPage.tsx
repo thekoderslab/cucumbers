@@ -1,9 +1,12 @@
+"use client";
+
+import { useRef, useState } from "react";
 import styles from "./MainPage.module.css";
-import CucumberImage from "./CucumberImage";
-import { Sunglasses, Cap } from "./CucumberDecor";
+import SmartImage from "./SmartImage";
 import AllowlistForm from "./AllowlistForm";
 import Wordmark from "./Wordmark";
 import Marquee from "./Marquee";
+import { HERO, CUCUMBER, TRAITS, GALLERY } from "@/lib/art";
 
 // Placeholder social URLs — swap for the real handles/invite before launch.
 const SOCIALS = {
@@ -18,48 +21,70 @@ const MARQUEE = [
   "Join the Hood",
 ];
 
-const STATS = [
-  { value: "1,111", label: "Supply" },
-  { value: "RHC", label: "Chain" },
-  { value: "TBA", label: "Mint" },
-];
+const TABS = [
+  { id: "home", label: "Home" },
+  { id: "hood", label: "The Hood" },
+  { id: "traits", label: "Traits" },
+  { id: "join", label: "Join" },
+] as const;
 
-const TRAITS = [
-  { emoji: "🕶️", label: "Eyewear", sub: "Shades on, always" },
-  { emoji: "🧢", label: "Headwear", sub: "Caps, buckets, crowns" },
-  { emoji: "⛓️", label: "Chains", sub: "Ice, but chill" },
-  { emoji: "🌈", label: "Backgrounds", sub: "All lime, all vibes" },
-  { emoji: "🛹", label: "Props", sub: "Boards, cups, snacks" },
-  { emoji: "😎", label: "Faces", sub: "Smirks to deadpan" },
-];
-
-const VIBES = [
-  {
-    emoji: "🥒",
-    title: "1,111 of them",
-    text: "Hand-tuned traits, no filler, no 10k slop.",
-  },
-  {
-    emoji: "⚡",
-    title: "Robinhood Chain",
-    text: "Native from day one. Fast, cheap, easy.",
-  },
-  {
-    emoji: "🧘",
-    title: "Just vibes",
-    text: "No roadmap. No promises. Only cucumbers.",
-  },
-];
+type TabId = (typeof TABS)[number]["id"];
 
 export default function MainPage() {
+  const [tab, setTab] = useState<TabId>("home");
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function onTabKeyDown(e: React.KeyboardEvent, i: number) {
+    const last = TABS.length - 1;
+    let next: number | null = null;
+    if (e.key === "ArrowRight") next = i === last ? 0 : i + 1;
+    else if (e.key === "ArrowLeft") next = i === 0 ? last : i - 1;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = last;
+    if (next === null) return;
+    e.preventDefault();
+    setTab(TABS[next].id);
+    tabRefs.current[next]?.focus();
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.dots} aria-hidden="true" />
 
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Wordmark className={styles.brandMark} stacked={false} />
-          <nav className={styles.nav}>
+          <button
+            type="button"
+            className={styles.brandBtn}
+            onClick={() => setTab("home")}
+            aria-label="Cucumber Hood — go to home"
+          >
+            <Wordmark className={styles.brandMark} stacked={false} />
+          </button>
+
+          <div className={styles.tablist} role="tablist" aria-label="Sections">
+            {TABS.map((t, i) => (
+              <button
+                key={t.id}
+                ref={(el) => {
+                  tabRefs.current[i] = el;
+                }}
+                type="button"
+                role="tab"
+                id={`tab-${t.id}`}
+                aria-controls={`panel-${t.id}`}
+                aria-selected={tab === t.id}
+                tabIndex={tab === t.id ? 0 : -1}
+                className={`${styles.tab} ${tab === t.id ? styles.tabActive : ""}`}
+                onClick={() => setTab(t.id)}
+                onKeyDown={(e) => onTabKeyDown(e, i)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.headerSocials}>
             <a
               className={styles.navLink}
               href={SOCIALS.x}
@@ -76,117 +101,237 @@ export default function MainPage() {
             >
               Discord
             </a>
-            <a className={styles.navCta} href="#join">
-              Join
-            </a>
-          </nav>
+          </div>
         </div>
       </header>
 
       <main className={styles.main}>
-        <section className={styles.hero}>
-          <div className={styles.heroCopy}>
-            <span className={styles.badge}>Native to Robinhood Chain</span>
-            <h1 className={styles.heroTitle}>
-              <span className={styles.num}>1,111</span>
-              <span>unique cucumbers</span>
-              <span className={styles.thin}>coming to Robinhood Chain</span>
-            </h1>
-            <p className={styles.heroSub}>
-              Cool cucumbers. Chill cucumbers. Just cucumbers.
-            </p>
-            <div className={styles.ctaRow}>
-              <a href="#join" className={styles.cta}>
-                Join the Hood
-              </a>
-              <a
-                href={SOCIALS.x}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.ctaGhost}
-              >
-                Follow on X
-              </a>
+        {/* ---------------- HOME ---------------- */}
+        {tab === "home" && (
+          <section
+            role="tabpanel"
+            id="panel-home"
+            aria-labelledby="tab-home"
+            className={styles.panel}
+          >
+            <div className={styles.homeGrid}>
+              <div className={styles.homeCopy}>
+                <span className={styles.badge}>Native to Robinhood Chain</span>
+                <h1 className={styles.homeTitle}>
+                  <span className={styles.num}>1,111</span>
+                  <span className={styles.titleLine}>unique</span>
+                  <span className={styles.titleLineOffset}>cucumbers</span>
+                </h1>
+                <p className={styles.homeSub}>
+                  Cool cucumbers. Chill cucumbers. Just cucumbers.
+                </p>
+                <div className={styles.ctaRow}>
+                  <button
+                    type="button"
+                    className={styles.cta}
+                    onClick={() => setTab("join")}
+                  >
+                    Join the Hood
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.ctaGhost}
+                    onClick={() => setTab("traits")}
+                  >
+                    See the traits
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.homeArt}>
+                <div className={styles.burst} aria-hidden="true" />
+                <SmartImage
+                  sources={HERO}
+                  alt="Cucumber Hood mascot"
+                  className={styles.heroImg}
+                  eager
+                />
+                <span className={`${styles.sticker} ${styles.stickerOne}`}>
+                  100% vibes
+                </span>
+                <span className={`${styles.sticker} ${styles.stickerTwo}`}>
+                  stay chill
+                </span>
+              </div>
+
+              <div className={styles.homeStats}>
+                <div className={styles.stat}>
+                  <strong>1,111</strong>
+                  <span>Supply</span>
+                </div>
+                <div className={styles.statWide}>
+                  <strong>Robinhood Chain</strong>
+                  <span>Native from day one</span>
+                </div>
+                <div className={styles.stat}>
+                  <strong>TBA</strong>
+                  <span>Mint</span>
+                </div>
+              </div>
             </div>
-            <ul className={styles.stats}>
-              {STATS.map((s) => (
-                <li key={s.label} className={styles.stat}>
-                  <strong>{s.value}</strong>
-                  <span>{s.label}</span>
-                </li>
+
+            <Marquee items={MARQUEE} />
+          </section>
+        )}
+
+        {/* ---------------- THE HOOD ---------------- */}
+        {tab === "hood" && (
+          <section
+            role="tabpanel"
+            id="panel-hood"
+            aria-labelledby="tab-hood"
+            className={styles.panel}
+          >
+            <div className={styles.hoodGrid}>
+              <div className={styles.hoodIntro}>
+                <span className={styles.kicker}>The Hood</span>
+                <h2 className={styles.bigTitle}>
+                  No roadmap.
+                  <br />
+                  No promises.
+                  <br />
+                  <span className={styles.num}>Only cucumbers.</span>
+                </h2>
+              </div>
+
+              <div className={styles.hoodShotA}>
+                <SmartImage
+                  sources={GALLERY[0].sources}
+                  alt={`Cucumber Hood ${GALLERY[0].label}`}
+                  className={styles.shotImg}
+                  placeholderClassName={styles.shotPlaceholder}
+                  placeholderLabel={GALLERY[0].label}
+                />
+              </div>
+
+              <div className={styles.hoodNote}>
+                <p>
+                  1,111 hand-tuned cucumbers. No filler, no 10k slop. Every one
+                  of them is doing absolutely nothing, extremely well.
+                </p>
+              </div>
+
+              <div className={styles.hoodShotB}>
+                <SmartImage
+                  sources={GALLERY[1].sources}
+                  alt={`Cucumber Hood ${GALLERY[1].label}`}
+                  className={styles.shotImg}
+                  placeholderClassName={styles.shotPlaceholder}
+                  placeholderLabel={GALLERY[1].label}
+                />
+              </div>
+
+              <div className={styles.hoodPanelDark}>
+                <h3>Built for the chain</h3>
+                <p>
+                  Native to Robinhood Chain from day one. Fast, cheap, and
+                  nobody has to explain what gas is again.
+                </p>
+              </div>
+
+              <div className={styles.hoodShotC}>
+                <SmartImage
+                  sources={GALLERY[2].sources}
+                  alt={`Cucumber Hood ${GALLERY[2].label}`}
+                  className={styles.shotImg}
+                  placeholderClassName={styles.shotPlaceholder}
+                  placeholderLabel={GALLERY[2].label}
+                />
+              </div>
+
+              <div className={styles.hoodShotD}>
+                <SmartImage
+                  sources={GALLERY[3].sources}
+                  alt={`Cucumber Hood ${GALLERY[3].label}`}
+                  className={styles.shotImg}
+                  placeholderClassName={styles.shotPlaceholder}
+                  placeholderLabel={GALLERY[3].label}
+                />
+              </div>
+            </div>
+
+            <Marquee items={MARQUEE} reverse />
+          </section>
+        )}
+
+        {/* ---------------- TRAITS ---------------- */}
+        {tab === "traits" && (
+          <section
+            role="tabpanel"
+            id="panel-traits"
+            aria-labelledby="tab-traits"
+            className={styles.panel}
+          >
+            <div className={styles.traitsHead}>
+              <span className={styles.kicker}>Sneak peek</span>
+              <h2 className={styles.bigTitle}>What&apos;s in the Hood</h2>
+              <p className={styles.leadText}>
+                Six trait families, a whole lot of combinations. The rest stays
+                in the crisper drawer.
+              </p>
+            </div>
+
+            <div className={styles.traitGrid}>
+              {TRAITS.map((t, i) => (
+                <figure
+                  key={t.label}
+                  className={`${styles.traitCard} ${i === 0 ? styles.traitCardBig : ""}`}
+                >
+                  <div className={styles.traitImgWrap}>
+                    <SmartImage
+                      sources={t.sources}
+                      alt={`${t.label} trait preview`}
+                      className={styles.traitImg}
+                      placeholderClassName={styles.traitPlaceholder}
+                      placeholderLabel={t.label}
+                    />
+                  </div>
+                  <figcaption className={styles.traitCap}>
+                    <span className={styles.traitLabel}>{t.label}</span>
+                    <span className={styles.traitSub}>{t.sub}</span>
+                  </figcaption>
+                </figure>
               ))}
-            </ul>
-          </div>
-
-          <div className={styles.heroArt}>
-            <div className={styles.burst} aria-hidden="true" />
-            <div className={styles.artWrap}>
-              <CucumberImage
-                className={styles.heroCucumber}
-                alt="Cucumber Hood mascot wearing sunglasses and a cap"
-              />
-              <Cap className={styles.heroCap} />
-              <Sunglasses className={styles.heroGlasses} />
             </div>
-            <span className={`${styles.sticker} ${styles.stickerOne}`}>
-              100% vibes
-            </span>
-            <span className={`${styles.sticker} ${styles.stickerTwo}`}>
-              stay chill
-            </span>
-          </div>
-        </section>
+          </section>
+        )}
 
-        <Marquee items={MARQUEE} />
-
-        <section className={styles.vibes}>
-          <div className={styles.vibeGrid}>
-            {VIBES.map((v) => (
-              <div key={v.title} className={styles.vibeCard}>
-                <span className={styles.vibeEmoji} aria-hidden="true">
-                  {v.emoji}
-                </span>
-                <h3 className={styles.vibeTitle}>{v.title}</h3>
-                <p className={styles.vibeText}>{v.text}</p>
+        {/* ---------------- JOIN ---------------- */}
+        {tab === "join" && (
+          <section
+            role="tabpanel"
+            id="panel-join"
+            aria-labelledby="tab-join"
+            className={styles.panel}
+          >
+            <div className={styles.joinGrid}>
+              <div className={styles.joinCard}>
+                <span className={styles.kicker}>Allowlist open</span>
+                <h2 className={styles.joinTitle}>Join the Hood</h2>
+                <p className={styles.joinSub}>
+                  Get early access before public mint. No pressure, just vibes.
+                </p>
+                <AllowlistForm />
               </div>
-            ))}
-          </div>
-        </section>
 
-        <section id="join" className={styles.join}>
-          <div className={styles.joinCard}>
-            <span className={styles.kicker}>Allowlist open</span>
-            <h2 className={styles.sectionTitle}>Join the Hood</h2>
-            <p className={styles.sectionSub}>
-              Get early access before public mint. No pressure, just vibes.
-            </p>
-            <AllowlistForm />
-          </div>
-        </section>
-
-        <section className={styles.traits}>
-          <div className={styles.sectionHead}>
-            <span className={styles.kicker}>Sneak peek</span>
-            <h2 className={styles.sectionTitle}>What&apos;s in the Hood</h2>
-            <p className={styles.sectionSub}>
-              Six trait families, a whole lot of combinations. The rest stays
-              in the crisper drawer.
-            </p>
-          </div>
-          <div className={styles.traitGrid}>
-            {TRAITS.map((t) => (
-              <div key={t.label} className={styles.traitCard}>
-                <span className={styles.traitEmoji} aria-hidden="true">
-                  {t.emoji}
+              <aside className={styles.joinAside}>
+                <SmartImage
+                  sources={CUCUMBER}
+                  alt=""
+                  className={styles.joinArt}
+                />
+                <span className={`${styles.sticker} ${styles.stickerThree}`}>
+                  see you at mint
                 </span>
-                <span className={styles.traitLabel}>{t.label}</span>
-                <span className={styles.traitSub}>{t.sub}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <Marquee items={MARQUEE} reverse />
+              </aside>
+            </div>
+          </section>
+        )}
       </main>
 
       <footer className={styles.footer}>

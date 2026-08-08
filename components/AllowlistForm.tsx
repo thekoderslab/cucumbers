@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import styles from "./AllowlistForm.module.css";
+import SmartImage from "./SmartImage";
+import { CUCUMBER } from "@/lib/art";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -51,9 +53,7 @@ export default function AllowlistForm() {
   if (status === "success") {
     return (
       <div className={styles.confirmation} role="status">
-        <span className={styles.confirmEmoji} aria-hidden="true">
-          🥒
-        </span>
+        <SmartImage sources={CUCUMBER} className={styles.confirmArt} />
         <h3 className={styles.confirmTitle}>
           You&apos;re in the Hood. See you at mint.
         </h3>

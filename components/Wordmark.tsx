@@ -1,6 +1,7 @@
 import { Ref } from "react";
 import styles from "./Wordmark.module.css";
-import CucumberImage from "./CucumberImage";
+import SmartImage from "./SmartImage";
+import { CUCUMBER } from "@/lib/art";
 
 // "D" with the left stem omitted — the cucumber supplies it.
 // viewBox 110x130; the stem occupies x 0-36.
@@ -41,7 +42,13 @@ export default function Wordmark({
             ref={slotRef}
             className={`${styles.slot} ${hintSlot ? styles.slotHint : ""}`}
           >
-            {filled && <CucumberImage className={styles.slotCuke} alt="" />}
+            {filled && (
+              <SmartImage
+                sources={CUCUMBER}
+                className={styles.slotCuke}
+                eager
+              />
+            )}
           </span>
         </span>
       </span>

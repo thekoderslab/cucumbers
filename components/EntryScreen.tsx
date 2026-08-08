@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./EntryScreen.module.css";
-import CucumberImage from "./CucumberImage";
+import SmartImage from "./SmartImage";
 import Wordmark from "./Wordmark";
+import { CUCUMBER } from "@/lib/art";
 
 type Stage = "idle" | "flying" | "landed" | "exiting";
 
@@ -117,7 +118,7 @@ export default function EntryScreen({
           aria-label="Click the cucumber to enter Cucumber Hood"
         >
           <div className={styles.cukeWrap} ref={cukeRef}>
-            <CucumberImage className={styles.cukeImg} alt="" />
+            <SmartImage sources={CUCUMBER} className={styles.cukeImg} eager />
           </div>
         </button>
       </div>
