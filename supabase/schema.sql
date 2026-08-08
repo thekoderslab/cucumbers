@@ -3,7 +3,14 @@
 
 create table if not exists public.allowlist (
   id          bigint generated always as identity primary key,
-  wallet      text        not null,
+  -- Stored lowercased by the API route. EVM addresses are case-insensitive
+  -- (mixed case is only a checksum), so normalising is what makes the
+  -- uniqueness below actually mean "one row per wallet".
+  --
+  -- This must be a plain column constraint, not a unique index on
+  -- lower(wallet): the route upserts with ON CONFLICT (wallet), and Postgres
+  -- requires the conflict target to match the index exactly.
+  wallet      text        not null unique,
   quote_url   text        not null,
   handle      text,
   followed    boolean     not null default false,
@@ -12,12 +19,8 @@ create table if not exists public.allowlist (
   updated_at  timestamptz not null default now()
 );
 
--- One row per wallet. Re-submitting the same address updates it rather than
--- creating a duplicate (the API route upserts on this constraint).
-create unique index if not exists allowlist_wallet_key
-  on public.allowlist (lower(wallet));
-
 -- Handy for spotting people farming spots with many wallets off one account.
+-- Not a conflict target, so a functional index is fine here.
 create index if not exists allowlist_handle_idx
   on public.allowlist (lower(handle));
 

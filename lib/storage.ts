@@ -56,7 +56,9 @@ async function addEntrySupabase(
 ): Promise<{ persisted: boolean; error?: string }> {
   const { error } = await db.from("allowlist").upsert(
     {
-      wallet: entry.wallet,
+      // Lowercased so the unique constraint dedupes properly — the same
+      // address submitted with different checksum casing is one wallet.
+      wallet: entry.wallet.toLowerCase(),
       quote_url: entry.quoteUrl,
       handle: entry.handle ?? null,
       followed: entry.followed,
