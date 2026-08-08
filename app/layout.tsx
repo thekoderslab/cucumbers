@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bungee, Fredoka } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 // Display face for the wordmark and headlines — blocky, signage-like,
@@ -37,7 +38,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${bungee.variable} ${fredoka.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
