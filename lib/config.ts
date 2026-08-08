@@ -1,19 +1,71 @@
+import { statusIdFromUrl } from "./validate";
+
 /**
  * Links and copy that change independently of the code.
  * Update these before launch.
  */
 
-/** Official X profile — used by the "follow" task. */
-export const X_PROFILE = "https://x.com/CucumberHoodNFT";
+/** Official X handle, without the @. */
+export const X_HANDLE = "CucumberHoodNFT";
+
+export const X_PROFILE = `https://x.com/${X_HANDLE}`;
 
 /**
  * The allowlist post on X that people have to like, repost and quote.
- * TODO: replace with the real post URL once it's live.
+ * TODO: replace with the real post URL once it's live. Until then the
+ * like/repost/quote intents below have no id to work with and fall back to
+ * opening this URL directly.
  */
 export const X_POST = "https://x.com/CucumberHoodNFT/status/0000000000000000000";
 
 /** OpenSea collection. TODO: replace "#" with the real URL when it's live. */
 export const OPENSEA = "#";
+
+/** Public site URL, used in the share text. */
+export const SITE = "cucumbershoodnft.com";
+
+/** Text pre-filled into the share composer after someone joins. */
+export const SHARE_TEXT = `I got the spot in @${X_HANDLE} go get yours at ${SITE}/join now.`;
+
+/*
+ * X Web Intents — these open a small action dialog (follow / like / repost /
+ * composer) instead of just landing on the page, so the user is one click
+ * from done. X controls this behaviour: signed-out users get a login prompt
+ * first, and if X ever retires an intent the URL degrades to the normal page.
+ * Each helper falls back to the plain post/profile URL when it can't build an
+ * intent, so a task is never a dead link.
+ */
+
+const POST_ID = statusIdFromUrl(X_POST);
+
+/** Opens the "Follow @handle" dialog. */
+export function followIntentUrl(): string {
+  return `https://x.com/intent/follow?screen_name=${encodeURIComponent(X_HANDLE)}`;
+}
+
+/** Opens the "Like this post" dialog. */
+export function likeIntentUrl(): string {
+  return POST_ID ? `https://x.com/intent/like?tweet_id=${POST_ID}` : X_POST;
+}
+
+/** Opens the "Repost this post" dialog. */
+export function repostIntentUrl(): string {
+  return POST_ID ? `https://x.com/intent/retweet?tweet_id=${POST_ID}` : X_POST;
+}
+
+/**
+ * Opens the composer with the post attached, which makes whatever they write
+ * a quote post — saving them from having to find the quote button.
+ */
+export function quoteIntentUrl(): string {
+  return `https://x.com/intent/post?url=${encodeURIComponent(X_POST)}`;
+}
+
+/** Opens the composer pre-filled — the user still hits post themselves. */
+export function shareIntentUrl(): string {
+  const params = new URLSearchParams({ text: SHARE_TEXT, url: X_POST });
+  return `https://x.com/intent/post?${params.toString()}`;
+}
 
 /**
  * Only add target/rel for links that actually leave the site — a "#"
@@ -23,16 +75,4 @@ export function externalLinkProps(href: string) {
   return href.startsWith("http")
     ? { target: "_blank" as const, rel: "noopener noreferrer" }
     : {};
-}
-
-/** Public site URL, used in the share text. */
-export const SITE = "cucumbershoodnft.com";
-
-/** Text pre-filled into the share composer after someone joins. */
-export const SHARE_TEXT = `I got the spot in @CucumberHoodNFT go get yours at ${SITE}/join now.`;
-
-/** Opens X's composer pre-filled — the user still hits post themselves. */
-export function shareIntentUrl(): string {
-  const params = new URLSearchParams({ text: SHARE_TEXT, url: X_POST });
-  return `https://x.com/intent/post?${params.toString()}`;
 }

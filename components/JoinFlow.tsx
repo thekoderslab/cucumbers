@@ -4,7 +4,14 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import styles from "./JoinFlow.module.css";
 import SmartImage from "./SmartImage";
 import { CUCUMBER } from "@/lib/art";
-import { X_PROFILE, X_POST, shareIntentUrl } from "@/lib/config";
+import {
+  X_HANDLE,
+  followIntentUrl,
+  likeIntentUrl,
+  repostIntentUrl,
+  quoteIntentUrl,
+  shareIntentUrl,
+} from "@/lib/config";
 import { isEvmAddress, isXStatusUrl } from "@/lib/validate";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -15,6 +22,9 @@ function openTab(url: string) {
 
 export default function JoinFlow() {
   const [followed, setFollowed] = useState(false);
+  // Like and repost are separate X intents, so they're tracked separately
+  // even though they make up one step in the list.
+  const [liked, setLiked] = useState(false);
   const [reposted, setReposted] = useState(false);
   const [quoteOpened, setQuoteOpened] = useState(false);
   const [quoteUrl, setQuoteUrl] = useState("");
@@ -27,7 +37,8 @@ export default function JoinFlow() {
 
   const quoteValid = isXStatusUrl(quoteUrl);
   const walletValid = isEvmAddress(wallet);
-  const done = [followed, reposted, quoteValid, walletValid].filter(
+  const engaged = liked && reposted;
+  const done = [followed, engaged, quoteValid, walletValid].filter(
     Boolean
   ).length;
   const ready = done === 4;
@@ -102,35 +113,48 @@ export default function JoinFlow() {
         <div className={`${styles.task} ${followed ? styles.taskDone : ""}`}>
           <span className={styles.taskNum}>{followed ? "✓" : "1"}</span>
           <div className={styles.taskBody}>
-            <h3 className={styles.taskTitle}>Follow @CucumberHoodNFT on X</h3>
+            <h3 className={styles.taskTitle}>Follow @{X_HANDLE} on X</h3>
             <button
               type="button"
               className={`${styles.taskAction} ${followed ? styles.taskActionDone : ""}`}
               onClick={() => {
-                openTab(X_PROFILE);
+                openTab(followIntentUrl());
                 setFollowed(true);
               }}
             >
-              {followed ? "Opened — done" : "Follow on X"}
+              {followed ? "Done ✓" : "Follow on X"}
             </button>
           </div>
         </div>
 
-        {/* 2 — like + repost */}
-        <div className={`${styles.task} ${reposted ? styles.taskDone : ""}`}>
-          <span className={styles.taskNum}>{reposted ? "✓" : "2"}</span>
+        {/* 2 — like + repost (two separate X intents) */}
+        <div className={`${styles.task} ${engaged ? styles.taskDone : ""}`}>
+          <span className={styles.taskNum}>{engaged ? "✓" : "2"}</span>
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Like and repost the post</h3>
-            <button
-              type="button"
-              className={`${styles.taskAction} ${reposted ? styles.taskActionDone : ""}`}
-              onClick={() => {
-                openTab(X_POST);
-                setReposted(true);
-              }}
-            >
-              {reposted ? "Opened — done" : "Open the post"}
-            </button>
+            <p className={styles.taskHint}>Both, please. It only takes a sec.</p>
+            <div className={styles.taskActions}>
+              <button
+                type="button"
+                className={`${styles.taskAction} ${liked ? styles.taskActionDone : ""}`}
+                onClick={() => {
+                  openTab(likeIntentUrl());
+                  setLiked(true);
+                }}
+              >
+                {liked ? "Liked ✓" : "Like the post"}
+              </button>
+              <button
+                type="button"
+                className={`${styles.taskAction} ${reposted ? styles.taskActionDone : ""}`}
+                onClick={() => {
+                  openTab(repostIntentUrl());
+                  setReposted(true);
+                }}
+              >
+                {reposted ? "Reposted ✓" : "Repost"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -140,18 +164,18 @@ export default function JoinFlow() {
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Quote the post</h3>
             <p className={styles.taskHint}>
-              Open the post, quote it, then paste the link to <em>your</em>{" "}
-              quote below.
+              Opens a post box with the link attached — whatever you write
+              becomes a quote. Then paste the link to <em>your</em> quote below.
             </p>
             <button
               type="button"
               className={`${styles.taskAction} ${quoteOpened ? styles.taskActionDone : ""}`}
               onClick={() => {
-                openTab(X_POST);
+                openTab(quoteIntentUrl());
                 setQuoteOpened(true);
               }}
             >
-              {quoteOpened ? "Opened — now paste the link" : "Open post to quote"}
+              {quoteOpened ? "Opened — now paste the link" : "Quote the post"}
             </button>
             <label className="visually-hidden" htmlFor="quoteUrl">
               URL of your quote post

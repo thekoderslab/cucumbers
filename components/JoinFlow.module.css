@@ -97,6 +97,12 @@
   line-height: 1.45;
 }
 
+.taskActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .taskAction {
   align-self: flex-start;
   font-family: var(--font-heading);

@@ -17,3 +17,9 @@ export function handleFromStatusUrl(value: string): string | undefined {
   const match = X_STATUS.exec(value.trim());
   return match?.[3];
 }
+
+/** Pulls the numeric post id out of a post URL — what X intents need. */
+export function statusIdFromUrl(value: string): string | undefined {
+  const match = X_STATUS.exec(value.trim());
+  return match?.[4];
+}
