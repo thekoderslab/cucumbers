@@ -12,11 +12,11 @@ export const X_PROFILE = `https://x.com/${X_HANDLE}`;
 
 /**
  * The allowlist post on X that people have to like, repost and quote.
- * TODO: replace with the real post URL once it's live. Until then the
- * like/repost/quote intents below have no id to work with and fall back to
- * opening this URL directly.
+ * Keep it in canonical form — no ?s= tracking params — since the post id is
+ * parsed out of it to build the like/repost intents.
  */
-export const X_POST = "https://x.com/CucumberHoodNFT/status/0000000000000000000";
+export const X_POST =
+  "https://x.com/CucumberHoodNFT/status/2086223787532734812";
 
 /** OpenSea collection. TODO: replace "#" with the real URL when it's live. */
 export const OPENSEA = "#";
