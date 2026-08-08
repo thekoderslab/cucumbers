@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addEntry } from "@/lib/storage";
+import { isEvmAddress, isXStatusUrl, handleFromStatusUrl } from "@/lib/validate";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -11,32 +12,28 @@ export async function POST(req: NextRequest) {
 
   const data = (body ?? {}) as Record<string, unknown>;
   const wallet = typeof data.wallet === "string" ? data.wallet.trim() : "";
-  const email = typeof data.email === "string" ? data.email.trim() : "";
-  const twitter = typeof data.twitter === "string" ? data.twitter.trim() : "";
+  const quoteUrl = typeof data.quoteUrl === "string" ? data.quoteUrl.trim() : "";
 
-  if (!wallet) {
+  if (!isEvmAddress(wallet)) {
     return NextResponse.json(
-      { error: "Wallet address is required." },
+      { error: "Enter a valid EVM address (0x + 40 characters)." },
       { status: 400 }
     );
   }
-  if (!twitter) {
+
+  if (!isXStatusUrl(quoteUrl)) {
     return NextResponse.json(
-      { error: "X handle is required." },
-      { status: 400 }
-    );
-  }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json(
-      { error: "That email doesn't look right." },
+      { error: "That doesn't look like an X post link." },
       { status: 400 }
     );
   }
 
   await addEntry({
     wallet,
-    email: email || undefined,
-    twitter,
+    quoteUrl,
+    handle: handleFromStatusUrl(quoteUrl),
+    followed: data.followed === true,
+    reposted: data.reposted === true,
     createdAt: new Date().toISOString(),
   });
 

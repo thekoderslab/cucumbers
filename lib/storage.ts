@@ -3,8 +3,11 @@ import path from "path";
 
 export interface AllowlistEntry {
   wallet: string;
-  email?: string;
-  twitter: string;
+  quoteUrl: string;
+  /** Parsed out of the quote URL. */
+  handle?: string;
+  followed: boolean;
+  reposted: boolean;
   createdAt: string;
 }
 
@@ -38,7 +41,13 @@ export async function addEntry(
   entry: AllowlistEntry
 ): Promise<{ persisted: boolean }> {
   const entries = await readAll();
-  entries.push(entry);
+
+  // Re-submitting the same wallet updates the existing row rather than
+  // adding a duplicate.
+  const key = entry.wallet.toLowerCase();
+  const existing = entries.findIndex((e) => e.wallet.toLowerCase() === key);
+  if (existing >= 0) entries[existing] = entry;
+  else entries.push(entry);
 
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });

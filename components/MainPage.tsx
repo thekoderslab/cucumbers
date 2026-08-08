@@ -1,18 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import styles from "./MainPage.module.css";
 import SmartImage from "./SmartImage";
-import AllowlistForm from "./AllowlistForm";
 import Wordmark from "./Wordmark";
 import Marquee from "./Marquee";
-import { HERO, CUCUMBER, TRAITS, GALLERY } from "@/lib/art";
-
-// Placeholder social URLs — swap for the real handles/invite before launch.
-const SOCIALS = {
-  x: "https://x.com/cucumberhood",
-  discord: "https://discord.gg/cucumberhood",
-};
+import { HERO, GALLERY } from "@/lib/art";
+import { X_PROFILE, DISCORD } from "@/lib/config";
 
 const MARQUEE = [
   "Cool as a cucumber",
@@ -24,11 +19,33 @@ const MARQUEE = [
 const TABS = [
   { id: "home", label: "Home" },
   { id: "hood", label: "The Hood" },
-  { id: "traits", label: "Traits" },
-  { id: "join", label: "Join" },
+  { id: "roadmap", label: "Roadmap" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
+
+const ROADMAP = [
+  {
+    phase: "01",
+    title: "Allowlist",
+    text: "Tasks go up, spots go out. The hood starts forming.",
+  },
+  {
+    phase: "02",
+    title: "Mint",
+    text: "1,111 cucumbers, native mint on Robinhood Chain.",
+  },
+  {
+    phase: "03",
+    title: "Reveal",
+    text: "Traits drop. Everybody finds out who they really are.",
+  },
+  {
+    phase: "04",
+    title: "The Hood",
+    text: "Community, collabs, and whatever the hood decides next.",
+  },
+];
 
 export default function MainPage() {
   const [tab, setTab] = useState<TabId>("home");
@@ -82,12 +99,15 @@ export default function MainPage() {
                 {t.label}
               </button>
             ))}
+            <Link href="/join" className={styles.tabJoin}>
+              Join
+            </Link>
           </div>
 
           <div className={styles.headerSocials}>
             <a
               className={styles.navLink}
-              href={SOCIALS.x}
+              href={X_PROFILE}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -95,7 +115,7 @@ export default function MainPage() {
             </a>
             <a
               className={styles.navLink}
-              href={SOCIALS.discord}
+              href={DISCORD}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -126,19 +146,15 @@ export default function MainPage() {
                   Cool cucumbers. Chill cucumbers. Just cucumbers.
                 </p>
                 <div className={styles.ctaRow}>
-                  <button
-                    type="button"
-                    className={styles.cta}
-                    onClick={() => setTab("join")}
-                  >
+                  <Link href="/join" className={styles.cta}>
                     Join the Hood
-                  </button>
+                  </Link>
                   <button
                     type="button"
                     className={styles.ctaGhost}
-                    onClick={() => setTab("traits")}
+                    onClick={() => setTab("hood")}
                   >
-                    See the traits
+                    Sneak peek
                   </button>
                 </div>
               </div>
@@ -179,7 +195,7 @@ export default function MainPage() {
           </section>
         )}
 
-        {/* ---------------- THE HOOD ---------------- */}
+        {/* ---------------- THE HOOD (sneak peek) ---------------- */}
         {tab === "hood" && (
           <section
             role="tabpanel"
@@ -187,149 +203,79 @@ export default function MainPage() {
             aria-labelledby="tab-hood"
             className={styles.panel}
           >
-            <div className={styles.hoodGrid}>
-              <div className={styles.hoodIntro}>
-                <span className={styles.kicker}>The Hood</span>
-                <h2 className={styles.bigTitle}>
-                  No roadmap.
-                  <br />
-                  No promises.
-                  <br />
-                  <span className={styles.num}>Only cucumbers.</span>
-                </h2>
-              </div>
+            <div className={styles.hoodHead}>
+              <span className={styles.kicker}>Sneak peek</span>
+              <h2 className={styles.bigTitle}>What&apos;s in the Hood</h2>
+              <p className={styles.leadText}>
+                A few of them, out in the wild. The rest stays in the crisper
+                drawer until reveal.
+              </p>
+            </div>
 
-              <div className={styles.hoodShotA}>
-                <SmartImage
-                  sources={GALLERY[0].sources}
-                  alt={`Cucumber Hood ${GALLERY[0].label}`}
-                  className={styles.shotImg}
-                  placeholderClassName={styles.shotPlaceholder}
-                  placeholderLabel={GALLERY[0].label}
-                />
-              </div>
+            <div className={styles.gallery}>
+              {GALLERY.map((item) => (
+                <figure key={item.label} className={styles.shot}>
+                  <div className={styles.shotFrame}>
+                    <SmartImage
+                      sources={item.sources}
+                      alt={`Cucumber Hood — ${item.label}`}
+                      className={styles.shotImg}
+                      placeholderClassName={styles.shotPlaceholder}
+                      placeholderLabel={item.label}
+                    />
+                  </div>
+                  <figcaption className={styles.shotCap}>
+                    {item.label}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
 
-              <div className={styles.hoodNote}>
-                <p>
-                  1,111 hand-tuned cucumbers. No filler, no 10k slop. Every one
-                  of them is doing absolutely nothing, extremely well.
-                </p>
-              </div>
-
-              <div className={styles.hoodShotB}>
-                <SmartImage
-                  sources={GALLERY[1].sources}
-                  alt={`Cucumber Hood ${GALLERY[1].label}`}
-                  className={styles.shotImg}
-                  placeholderClassName={styles.shotPlaceholder}
-                  placeholderLabel={GALLERY[1].label}
-                />
-              </div>
-
-              <div className={styles.hoodPanelDark}>
-                <h3>Built for the chain</h3>
-                <p>
-                  Native to Robinhood Chain from day one. Fast, cheap, and
-                  nobody has to explain what gas is again.
-                </p>
-              </div>
-
-              <div className={styles.hoodShotC}>
-                <SmartImage
-                  sources={GALLERY[2].sources}
-                  alt={`Cucumber Hood ${GALLERY[2].label}`}
-                  className={styles.shotImg}
-                  placeholderClassName={styles.shotPlaceholder}
-                  placeholderLabel={GALLERY[2].label}
-                />
-              </div>
-
-              <div className={styles.hoodShotD}>
-                <SmartImage
-                  sources={GALLERY[3].sources}
-                  alt={`Cucumber Hood ${GALLERY[3].label}`}
-                  className={styles.shotImg}
-                  placeholderClassName={styles.shotPlaceholder}
-                  placeholderLabel={GALLERY[3].label}
-                />
-              </div>
+            <div className={styles.hoodCta}>
+              <Link href="/join" className={styles.cta}>
+                Join the Hood
+              </Link>
             </div>
 
             <Marquee items={MARQUEE} reverse />
           </section>
         )}
 
-        {/* ---------------- TRAITS ---------------- */}
-        {tab === "traits" && (
+        {/* ---------------- ROADMAP ---------------- */}
+        {tab === "roadmap" && (
           <section
             role="tabpanel"
-            id="panel-traits"
-            aria-labelledby="tab-traits"
+            id="panel-roadmap"
+            aria-labelledby="tab-roadmap"
             className={styles.panel}
           >
-            <div className={styles.traitsHead}>
-              <span className={styles.kicker}>Sneak peek</span>
-              <h2 className={styles.bigTitle}>What&apos;s in the Hood</h2>
+            <div className={styles.roadHead}>
+              <span className={styles.kicker}>Roadmap</span>
+              <h2 className={styles.bigTitle}>Where this is going</h2>
               <p className={styles.leadText}>
-                Six trait families, a whole lot of combinations. The rest stays
-                in the crisper drawer.
+                Four steps. Nothing complicated.
               </p>
             </div>
 
-            <div className={styles.traitGrid}>
-              {TRAITS.map((t, i) => (
-                <figure
-                  key={t.label}
-                  className={`${styles.traitCard} ${i === 0 ? styles.traitCardBig : ""}`}
-                >
-                  <div className={styles.traitImgWrap}>
-                    <SmartImage
-                      sources={t.sources}
-                      alt={`${t.label} trait preview`}
-                      className={styles.traitImg}
-                      placeholderClassName={styles.traitPlaceholder}
-                      placeholderLabel={t.label}
-                    />
+            <ol className={styles.roadList}>
+              {ROADMAP.map((r) => (
+                <li key={r.phase} className={styles.roadItem}>
+                  <span className={styles.roadPhase}>{r.phase}</span>
+                  <div className={styles.roadCard}>
+                    <h3 className={styles.roadTitle}>{r.title}</h3>
+                    <p className={styles.roadText}>{r.text}</p>
                   </div>
-                  <figcaption className={styles.traitCap}>
-                    <span className={styles.traitLabel}>{t.label}</span>
-                    <span className={styles.traitSub}>{t.sub}</span>
-                  </figcaption>
-                </figure>
+                </li>
               ))}
-            </div>
-          </section>
-        )}
+            </ol>
 
-        {/* ---------------- JOIN ---------------- */}
-        {tab === "join" && (
-          <section
-            role="tabpanel"
-            id="panel-join"
-            aria-labelledby="tab-join"
-            className={styles.panel}
-          >
-            <div className={styles.joinGrid}>
-              <div className={styles.joinCard}>
-                <span className={styles.kicker}>Allowlist open</span>
-                <h2 className={styles.joinTitle}>Join the Hood</h2>
-                <p className={styles.joinSub}>
-                  Get early access before public mint. No pressure, just vibes.
-                </p>
-                <AllowlistForm />
-              </div>
-
-              <aside className={styles.joinAside}>
-                <SmartImage
-                  sources={CUCUMBER}
-                  alt=""
-                  className={styles.joinArt}
-                />
-                <span className={`${styles.sticker} ${styles.stickerThree}`}>
-                  see you at mint
-                </span>
-              </aside>
+            <div className={styles.hoodCta}>
+              <Link href="/join" className={styles.cta}>
+                Join the Hood
+              </Link>
             </div>
+
+            <Marquee items={MARQUEE} />
           </section>
         )}
       </main>
@@ -342,7 +288,7 @@ export default function MainPage() {
         <div className={styles.footerSocials}>
           <a
             className={styles.socialPill}
-            href={SOCIALS.x}
+            href={X_PROFILE}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -350,7 +296,7 @@ export default function MainPage() {
           </a>
           <a
             className={styles.socialPill}
-            href={SOCIALS.discord}
+            href={DISCORD}
             target="_blank"
             rel="noopener noreferrer"
           >

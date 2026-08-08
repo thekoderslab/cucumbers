@@ -8,16 +8,20 @@
  * Drop your art into `public/art/` using these filenames.
  */
 
-/** Plain cucumber — used in the wordmark's D and on the entry screen. */
+/**
+ * Plain cucumber — used in the wordmark's D and on the entry screen.
+ * This one must be a TRANSPARENT png: it sits inside a letterform.
+ */
 export const CUCUMBER: string[] = [
   "/art/cucumber.png",
   "/cucumber-base.png",
   "/cucumber-placeholder.svg",
 ];
 
-/** The "finished look" hero character (shades, cap, whatever else). */
+/** The character on the Home hero. */
 export const HERO: string[] = [
   "/art/hero.png",
+  "/art/punk.png",
   "/art/cucumber.png",
   "/cucumber-base.png",
   "/cucumber-placeholder.svg",
@@ -26,47 +30,17 @@ export const HERO: string[] = [
 export interface ArtItem {
   sources: string[];
   label: string;
-  sub: string;
 }
 
-/** Trait families — real art thumbnails, not icons. */
-export const TRAITS: ArtItem[] = [
-  {
-    sources: ["/art/trait-eyewear.png"],
-    label: "Eyewear",
-    sub: "Shades on, always",
-  },
-  {
-    sources: ["/art/trait-headwear.png"],
-    label: "Headwear",
-    sub: "Caps, buckets, crowns",
-  },
-  {
-    sources: ["/art/trait-chains.png"],
-    label: "Chains",
-    sub: "Ice, but chill",
-  },
-  {
-    sources: ["/art/trait-backgrounds.png"],
-    label: "Backgrounds",
-    sub: "All lime, all vibes",
-  },
-  {
-    sources: ["/art/trait-props.png"],
-    label: "Props",
-    sub: "Boards, cups, snacks",
-  },
-  {
-    sources: ["/art/trait-faces.png"],
-    label: "Faces",
-    sub: "Smirks to deadpan",
-  },
-];
-
-/** Collection teasers shown on the Hood tab. */
+/** Sneak-peek gallery on The Hood tab. */
 export const GALLERY: ArtItem[] = [
-  { sources: ["/art/1.png"], label: "#001", sub: "" },
-  { sources: ["/art/2.png"], label: "#014", sub: "" },
-  { sources: ["/art/3.png"], label: "#077", sub: "" },
-  { sources: ["/art/4.png"], label: "#420", sub: "" },
+  { sources: ["/art/fisher.png"], label: "Gone fishin'" },
+  { sources: ["/art/paperbag.png"], label: "Anon" },
+  { sources: ["/art/robin.png"], label: "Robin Hood" },
+  { sources: ["/art/sheriff.png"], label: "Sheriff" },
+  { sources: ["/art/skater.png"], label: "Fresh cap" },
+  { sources: ["/art/scientist.png"], label: "Lab work" },
+  { sources: ["/art/vampire.png"], label: "Night shift" },
+  { sources: ["/art/gamer.png"], label: "Full send" },
+  { sources: ["/art/punk.png"], label: "Punk" },
 ];

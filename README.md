@@ -1,6 +1,6 @@
 # Cucumber Hood
 
-Single-page Next.js (App Router + TypeScript) site for the Cucumber Hood NFT collection: a click-to-enter intro where the cucumber flies up and slots into the **D of HOOD**, revealing a tabbed allowlist site.
+Next.js (App Router + TypeScript) site for the Cucumber Hood NFT collection: a click-to-enter intro where the cucumber flies up and slots into the **D of HOOD**, revealing a tabbed landing site, plus a dedicated `/join` allowlist page.
 
 ## Before you deploy
 
@@ -8,9 +8,18 @@ Single-page Next.js (App Router + TypeScript) site for the Cucumber Hood NFT col
 
 The one image worth adding first is `public/art/cucumber.png` (transparent PNG) — it's the cucumber in the wordmark's D and on the entry screen.
 
-To rename files, add more, or change trait labels, edit [`lib/art.ts`](lib/art.ts) — the single source of truth for all imagery.
+To rename files, add more, or change captions, edit [`lib/art.ts`](lib/art.ts) — the single source of truth for all imagery.
 
-**2. Update placeholder links.** `SOCIALS` in [`components/MainPage.tsx`](components/MainPage.tsx) has placeholder X/Discord URLs.
+**2. Fill in the real links.** [`lib/config.ts`](lib/config.ts) holds every external URL:
+
+| Constant | What it is | Status |
+| --- | --- | --- |
+| `X_PROFILE` | The X account people follow | ✅ set to `x.com/CucumberHoodNFT` |
+| `X_POST` | The post to like / repost / quote | ⚠️ **placeholder — must be updated** |
+| `DISCORD` | Discord invite | ⚠️ placeholder |
+| `SITE` | Domain used in the share text | `cucumbershoodnft.com` |
+
+Until `X_POST` is set to the real post, tasks 2 and 3 on the join page open a dead link.
 
 ## Design system
 
@@ -19,9 +28,25 @@ To rename files, add more, or change trait labels, edit [`lib/art.ts`](lib/art.t
 - **Look:** screen-printed / sticker style — everything is dark ink on `#CCFF00`, with thick borders, hard offset shadows, slight rotations, a subtle dot texture and scrolling marquee bars. The page background stays `#CCFF00` everywhere; contrast comes from ink-filled components (buttons, badges, dark panels, marquee bars), not from other background colors.
 - **Layout:** deliberately asymmetric. Every section runs on a 12-column grid with lopsided spans, off-axis type, staggered cards and rotated panels rather than centered blocks.
 
-## Tabs
+## Routes and tabs
 
-The site stays on a single route (`/`). The main page is a tabbed interface — **Home**, **The Hood**, **Traits**, **Join** — switched with client-side state in [`components/MainPage.tsx`](components/MainPage.tsx). Tabs are a proper ARIA `tablist` with arrow-key/Home/End navigation.
+- **`/`** — the landing site. Three tabs, switched with client-side state in [`components/MainPage.tsx`](components/MainPage.tsx): **Home**, **The Hood** (the sneak-peek gallery), **Roadmap**. They're a proper ARIA `tablist` with arrow-key/Home/End navigation.
+- **`/join`** — a real, separate route, so `cucumbershoodnft.com/join` is directly linkable and people can land on it straight from X. No entry animation there.
+
+The "Join" button in the header is a link to `/join`, not a tab.
+
+## The join flow
+
+[`components/JoinFlow.tsx`](components/JoinFlow.tsx) walks through four tasks with a progress bar; the submit button stays disabled until all four are satisfied:
+
+1. **Follow on X** — opens `X_PROFILE` in a new tab, marks the step done.
+2. **Like and repost** — opens `X_POST` in a new tab, marks the step done.
+3. **Quote the post** — opens `X_POST`, then unlocks a field for the URL of *their* quote. Validated against an `x.com/<handle>/status/<id>` pattern.
+4. **EVM wallet** — validated as `0x` + 40 hex characters.
+
+On success a modal appears with a **Share on X** button that opens X's composer pre-filled with the share text from `lib/config.ts` (the user still presses post themselves).
+
+Steps 1 and 2 are honour-system — X doesn't expose follow/repost state without API credentials and OAuth. The quote URL is the one piece of real evidence captured, and the handle is parsed out of it and stored alongside the wallet, so you can verify submissions against the post afterwards.
 
 Swapping the fonts is a two-line change in [`app/layout.tsx`](app/layout.tsx) — both are wired through the `--font-display` / `--font-body` CSS variables in [`app/globals.css`](app/globals.css).
 
@@ -67,13 +92,16 @@ The rest of the app only calls `addEntry()` / `getAllEntries()`, so the swap is 
 
 ## Project structure
 
-- `app/page.tsx` — shows the entry animation once per session, then the main page underneath
+- `app/page.tsx` — shows the entry animation once per session, then the landing site underneath
+- `app/join/page.tsx` — the standalone `/join` allowlist page
 - `components/Wordmark.tsx` — the CUCUMBER HOOD wordmark with the cucumber-as-D
 - `components/EntryScreen.tsx` — click-to-enter animation
-- `components/MainPage.tsx` — tabs + all four panels
+- `components/MainPage.tsx` — tabs + the Home / The Hood / Roadmap panels
+- `components/JoinFlow.tsx` — the four-task allowlist flow and success modal
 - `components/SmartImage.tsx` — image with a fallback chain and placeholder tile
 - `components/Marquee.tsx` — scrolling sticker bars
-- `components/AllowlistForm.tsx` — signup form (wallet, optional email, X handle)
 - `app/api/allowlist/route.ts` — validates and stores submissions
 - `lib/art.ts` — every image path and label used on the site
+- `lib/config.ts` — external URLs and share copy
+- `lib/validate.ts` — EVM address and X post URL validation, shared client/server
 - `lib/storage.ts` — storage layer (see the Vercel note above)

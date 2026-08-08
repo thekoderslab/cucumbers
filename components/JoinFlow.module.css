@@ -1,0 +1,336 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 12px;
+  border: var(--bd);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--ink);
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ---------- Task cards ---------- */
+
+.task {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  border: var(--bd);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: var(--sh-sm);
+  padding: 18px;
+  transition: box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.taskDone {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.taskNum {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--bd);
+  border-radius: 50%;
+  background: var(--bg);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.taskDone .taskNum {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.taskBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.taskTitle {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: clamp(0.8rem, 2.4vw, 0.95rem);
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.taskHint {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  line-height: 1.45;
+}
+
+.taskAction {
+  align-self: flex-start;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  padding: 12px 20px;
+  border: var(--bd);
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: var(--sh-sm);
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.taskAction:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sh);
+}
+
+.taskAction:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.taskActionDone {
+  background: transparent;
+  color: var(--ink);
+}
+
+.input {
+  width: 100%;
+  padding: 15px 16px;
+  border-radius: var(--r-sm);
+  border: var(--bd);
+  background: var(--bg);
+  box-shadow: var(--sh-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  outline: none;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.input::placeholder {
+  color: rgba(11, 31, 18, 0.5);
+  font-weight: 500;
+}
+
+.input:focus {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sh);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.fieldError {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #7a1010;
+}
+
+/* ---------- Submit ---------- */
+
+.submit {
+  margin-top: 6px;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: clamp(0.82rem, 2.4vw, 1rem);
+  padding: 19px 24px;
+  border: var(--bd);
+  border-radius: var(--r-pill);
+  box-shadow: var(--sh-sm);
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.submit:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sh);
+}
+
+.submit:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0;
+  color: #7a1010;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  text-align: center;
+}
+
+/* ---------- Success modal ---------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(11, 31, 18, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg);
+  border: var(--bd-thick);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-lg);
+  padding: clamp(26px, 5vw, 40px);
+  text-align: center;
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalArt {
+  height: 110px;
+  width: auto;
+  margin: 0 auto 16px;
+  object-fit: contain;
+  transform: rotate(-5deg);
+}
+
+.modalTitle {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: clamp(1.3rem, 5vw, 1.9rem);
+  margin: 0 0 10px;
+  line-height: 1.05;
+}
+
+.modalText {
+  margin: 0 0 22px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shareBtn {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  padding: 17px 24px;
+  border: var(--bd);
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: var(--sh-sm);
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.shareBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sh);
+}
+
+.closeBtn {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  padding: 13px 20px;
+  border: var(--bd);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.closeBtn:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .scrim {
+    animation: none;
+  }
+}

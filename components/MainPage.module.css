@@ -86,7 +86,7 @@
   display: none;
 }
 
-@media (min-width: 860px) {
+@media (min-width: 900px) {
   .tablist {
     order: 0;
     width: auto;
@@ -95,7 +95,8 @@
   }
 }
 
-.tab {
+.tab,
+.tabJoin {
   flex: 0 0 auto;
   font-family: var(--font-heading);
   text-transform: uppercase;
@@ -111,7 +112,8 @@
     box-shadow 0.14s ease;
 }
 
-.tab:hover {
+.tab:hover,
+.tabJoin:hover {
   transform: translateY(-2px);
   box-shadow: var(--sh-sm);
 }
@@ -120,6 +122,14 @@
   background: var(--ink);
   color: var(--bg);
   box-shadow: var(--sh-sm);
+}
+
+/* Join is a real link to /join, so it reads as the standout action. */
+.tabJoin {
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: var(--sh-sm);
+  margin-left: 4px;
 }
 
 .headerSocials {
@@ -212,6 +222,7 @@
 
 .cta,
 .ctaGhost {
+  display: inline-block;
   font-family: var(--font-heading);
   text-transform: uppercase;
   font-size: clamp(0.72rem, 2.1vw, 0.88rem);
@@ -384,12 +395,6 @@
   transform: rotate(7deg);
 }
 
-.stickerThree {
-  bottom: 6%;
-  left: 4%;
-  transform: rotate(-6deg);
-}
-
 .homeStats {
   display: grid;
   gap: 10px;
@@ -446,116 +451,95 @@
   opacity: 0.75;
 }
 
-/* ---------------- THE HOOD (asymmetric collage) ---------------- */
+/* ---------------- THE HOOD — sneak peek gallery ---------------- */
 
-.hoodGrid {
+.hoodHead {
   max-width: 1180px;
   margin: 0 auto;
-  padding: clamp(28px, 5vw, 60px) clamp(16px, 4vw, 40px) clamp(34px, 5vw, 64px);
-  display: grid;
-  gap: clamp(16px, 2.4vw, 26px);
-  grid-template-columns: repeat(2, 1fr);
+  padding: clamp(28px, 5vw, 60px) clamp(16px, 4vw, 40px) clamp(20px, 3vw, 34px);
 }
 
 @media (min-width: 900px) {
-  .hoodGrid {
+  .hoodHead {
+    padding-left: clamp(40px, 8vw, 120px);
+  }
+}
+
+.gallery {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 40px);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(14px, 2.4vw, 24px);
+}
+
+/*
+ * Asymmetric collage: uneven spans, a couple of forced column starts to
+ * punch holes in the grid, and staggered vertical offsets so no two rows
+ * line up flat.
+ */
+@media (min-width: 760px) {
+  .gallery {
     grid-template-columns: repeat(12, 1fr);
     align-items: start;
+    gap: clamp(16px, 2.2vw, 26px);
   }
-  .hoodIntro {
-    grid-column: 1 / span 6;
-    padding-top: 20px;
+  .shot:nth-child(1) {
+    grid-column: span 5;
+    transform: rotate(-2deg);
   }
-  .hoodShotA {
-    grid-column: 8 / span 5;
-    transform: rotate(2deg);
+  .shot:nth-child(2) {
+    grid-column: span 3;
+    transform: rotate(2deg) translateY(30px);
   }
-  .hoodNote {
-    grid-column: 2 / span 5;
-    margin-top: -10px;
-  }
-  .hoodShotB {
-    grid-column: 8 / span 3;
-    transform: rotate(-3deg) translateY(-24px);
-  }
-  .hoodPanelDark {
-    grid-column: 1 / span 7;
+  .shot:nth-child(3) {
+    grid-column: span 4;
     transform: rotate(-1deg);
   }
-  .hoodShotC {
-    grid-column: 9 / span 4;
-    transform: rotate(3deg) translateY(-40px);
+  .shot:nth-child(4) {
+    grid-column: 2 / span 3;
+    transform: rotate(3deg) translateY(-16px);
   }
-  .hoodShotD {
-    grid-column: 4 / span 4;
-    transform: rotate(-2deg) translateY(-16px);
+  .shot:nth-child(5) {
+    grid-column: span 4;
+    transform: rotate(-2deg) translateY(24px);
+  }
+  .shot:nth-child(6) {
+    grid-column: span 3;
+    transform: rotate(2deg);
+  }
+  .shot:nth-child(7) {
+    grid-column: 1 / span 4;
+    transform: rotate(2deg) translateY(-12px);
+  }
+  .shot:nth-child(8) {
+    grid-column: span 3;
+    transform: rotate(-3deg) translateY(32px);
+  }
+  .shot:nth-child(9) {
+    grid-column: span 4;
+    transform: rotate(1deg);
   }
 }
 
-.hoodIntro {
-  grid-column: 1 / -1;
-}
-
-.hoodNote {
-  grid-column: 1 / -1;
-  border: var(--bd);
-  border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: var(--sh);
-  padding: 22px 24px;
-}
-
-.hoodNote p {
+.shot {
   margin: 0;
-  font-size: clamp(0.95rem, 2.3vw, 1.05rem);
-  font-weight: 500;
-  color: var(--ink-mid);
-  line-height: 1.5;
+  transition: transform 0.18s ease;
 }
 
-.hoodPanelDark {
-  grid-column: 1 / -1;
-  background: var(--ink);
-  color: var(--bg);
+.shot:hover {
+  transform: rotate(0deg) translateY(-6px);
+}
+
+.shotFrame {
   border: var(--bd);
   border-radius: var(--r-md);
-  box-shadow: var(--sh);
-  padding: 26px 26px 28px;
-}
-
-.hoodPanelDark h3 {
-  font-family: var(--font-heading);
-  text-transform: uppercase;
-  font-size: clamp(1.1rem, 3.4vw, 1.5rem);
-  margin: 0 0 10px;
-}
-
-.hoodPanelDark p {
-  margin: 0;
-  font-size: 0.98rem;
-  font-weight: 500;
-  line-height: 1.5;
-  opacity: 0.86;
-}
-
-.hoodShotA,
-.hoodShotB,
-.hoodShotC,
-.hoodShotD {
-  border: var(--bd);
-  border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.3);
+  /* The art files carry their own lime background, so match it here. */
+  background: var(--bg);
   box-shadow: var(--sh);
   overflow: hidden;
   aspect-ratio: 1;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.hoodShotA:hover,
-.hoodShotB:hover,
-.hoodShotC:hover,
-.hoodShotD:hover {
-  box-shadow: var(--sh-lg);
 }
 
 .shotImg {
@@ -565,8 +549,7 @@
   display: block;
 }
 
-.shotPlaceholder,
-.traitPlaceholder {
+.shotPlaceholder {
   width: 100%;
   height: 100%;
   display: flex;
@@ -574,7 +557,7 @@
   justify-content: center;
   font-family: var(--font-heading);
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   letter-spacing: 0.04em;
   color: rgba(11, 31, 18, 0.45);
   background-image: repeating-linear-gradient(
@@ -584,168 +567,107 @@
   );
 }
 
-/* ---------------- TRAITS (asymmetric grid) ---------------- */
+.shotCap {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-mid);
+  margin-top: 10px;
+  padding-left: 4px;
+}
 
-.traitsHead {
+.hoodCta {
+  display: flex;
+  justify-content: center;
+  padding: clamp(40px, 6vw, 70px) 20px clamp(30px, 5vw, 56px);
+}
+
+/* ---------------- ROADMAP ---------------- */
+
+.roadHead {
   max-width: 1180px;
   margin: 0 auto;
-  padding: clamp(28px, 5vw, 60px) clamp(16px, 4vw, 40px) clamp(18px, 3vw, 30px);
+  padding: clamp(28px, 5vw, 60px) clamp(16px, 4vw, 40px) clamp(24px, 4vw, 40px);
 }
 
 @media (min-width: 900px) {
-  .traitsHead {
+  .roadHead {
     padding-left: clamp(40px, 8vw, 120px);
   }
 }
 
-.traitGrid {
-  max-width: 1180px;
+.roadList {
+  list-style: none;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 0 clamp(16px, 4vw, 40px) clamp(46px, 7vw, 80px);
-  display: grid;
-  gap: clamp(14px, 2.2vw, 22px);
-  grid-template-columns: repeat(2, 1fr);
-}
-
-@media (min-width: 760px) {
-  .traitGrid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: minmax(0, auto);
-  }
-  /* First card is the hero of the grid — two-up, two-down. */
-  .traitCardBig {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-  /* Stagger the small cards so the rows don't line up flat. */
-  .traitCard:nth-child(3) {
-    transform: translateY(18px);
-  }
-  .traitCard:nth-child(5) {
-    transform: translateY(-14px);
-  }
-  .traitCard:nth-child(6) {
-    transform: translateY(10px);
-  }
-}
-
-.traitCard {
-  margin: 0;
+  padding: 0 clamp(16px, 4vw, 40px);
   display: flex;
   flex-direction: column;
+  gap: clamp(16px, 2.6vw, 26px);
+}
+
+.roadItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* Zigzag inset so the list reads as a path, not a stack. */
+@media (min-width: 760px) {
+  .roadItem:nth-child(odd) {
+    margin-right: 18%;
+  }
+  .roadItem:nth-child(even) {
+    margin-left: 18%;
+  }
+  .roadItem:nth-child(odd) .roadCard {
+    transform: rotate(-1deg);
+  }
+  .roadItem:nth-child(even) .roadCard {
+    transform: rotate(1deg);
+  }
+}
+
+.roadPhase {
+  flex: 0 0 auto;
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  padding-top: 8px;
+}
+
+.roadCard {
+  flex: 1;
   border: var(--bd);
   border-radius: var(--r-md);
   background: rgba(255, 255, 255, 0.3);
-  box-shadow: var(--sh-sm);
-  overflow: hidden;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.traitCard:hover {
   box-shadow: var(--sh);
+  padding: 20px 22px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
-.traitImgWrap {
-  width: 100%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border-bottom: var(--bd);
+.roadCard:hover {
+  transform: rotate(0deg) translate(-3px, -3px);
+  box-shadow: var(--sh-lg);
 }
 
-.traitCardBig .traitImgWrap {
-  aspect-ratio: auto;
-  flex: 1;
-  min-height: 200px;
-}
-
-.traitImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.traitCap {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 14px 16px 16px;
-}
-
-.traitLabel {
+.roadTitle {
   font-family: var(--font-heading);
   text-transform: uppercase;
-  font-size: clamp(0.72rem, 2vw, 0.85rem);
-  letter-spacing: 0.03em;
+  font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+  margin: 0 0 8px;
 }
 
-.traitSub {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--ink-mid);
-  line-height: 1.35;
-}
-
-/* ---------------- JOIN (asymmetric) ---------------- */
-
-.joinGrid {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: clamp(30px, 5vw, 64px) clamp(16px, 4vw, 40px) clamp(46px, 7vw, 84px);
-  display: grid;
-  gap: clamp(24px, 4vw, 44px);
-  align-items: center;
-}
-
-@media (min-width: 900px) {
-  .joinGrid {
-    grid-template-columns: repeat(12, 1fr);
-  }
-  .joinCard {
-    grid-column: 1 / span 7;
-  }
-  .joinAside {
-    grid-column: 9 / span 4;
-  }
-}
-
-.joinCard {
-  border: var(--bd-thick);
-  border-radius: var(--r-lg);
-  background: rgba(255, 255, 255, 0.32);
-  box-shadow: var(--sh-lg);
-  padding: clamp(26px, 4.5vw, 44px) clamp(20px, 4vw, 40px);
-  transform: rotate(-0.6deg);
-}
-
-.joinTitle {
-  font-size: clamp(1.8rem, 6vw, 3rem);
-  text-transform: uppercase;
-  margin: 0 0 10px;
-}
-
-.joinSub {
-  font-size: clamp(0.95rem, 2.4vw, 1.05rem);
-  font-weight: 500;
-  color: var(--ink-mid);
+.roadText {
   margin: 0;
-  max-width: 40ch;
-}
-
-.joinAside {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 240px;
-}
-
-.joinArt {
-  height: clamp(200px, 30vw, 340px);
-  width: auto;
-  object-fit: contain;
-  transform: rotate(6deg);
-  filter: drop-shadow(0 16px 18px rgba(11, 31, 18, 0.26));
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  line-height: 1.5;
 }
 
 /* ---------------- Footer ---------------- */
