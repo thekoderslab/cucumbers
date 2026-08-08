@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await addEntry({
+  const result = await addEntry({
     wallet,
     quoteUrl,
     handle: handleFromStatusUrl(quoteUrl),
@@ -36,6 +36,15 @@ export async function POST(req: NextRequest) {
     reposted: data.reposted === true,
     createdAt: new Date().toISOString(),
   });
+
+  // Never confirm a spot we didn't actually store — a cheerful success
+  // screen over a dropped entry is worse than an honest error.
+  if (!result.persisted) {
+    return NextResponse.json(
+      { error: "We couldn't save your spot. Please try again shortly." },
+      { status: 503 }
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }

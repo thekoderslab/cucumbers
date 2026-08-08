@@ -78,17 +78,39 @@ Then open http://localhost:3000.
 
 Push this repo to GitHub and import it in Vercel, or run `vercel` from the project root. No environment variables are required for the default setup.
 
-### ⚠️ Allowlist storage on Vercel
+## Allowlist storage (Supabase) — required for production
 
-The `/api/allowlist` route (see [`lib/storage.ts`](lib/storage.ts)) writes submissions to a local JSON file at `data/allowlist.json`. That works in local dev (`npm run dev`) but **Vercel's serverless filesystem is read-only in production**, so file-based storage won't persist submissions once deployed there — each invocation runs in a fresh, ephemeral environment.
+Submissions go to Supabase. **Without it configured, nothing is saved in production** — Vercel's filesystem is read-only, so the local-JSON fallback can only work in `npm run dev`.
 
-Failed writes are logged instead (visible in the Vercel function logs), so you won't lose data silently — but for durable capture in production, swap `lib/storage.ts`'s internals for a hosted store:
+Setup, once:
 
-- **Vercel Postgres / Vercel KV** — add the integration from the Vercel dashboard (same account, a few clicks)
-- **Supabase / PlanetScale** — free tier, a few lines of client code
-- **Airtable or Formspree** — if you'd rather not manage a database
+1. Create a project at [supabase.com](https://supabase.com) (free tier is plenty).
+2. Open **SQL Editor → New query**, paste [`supabase/schema.sql`](supabase/schema.sql), run it.
+3. Go to **Project Settings → API** and copy the **Project URL** and the **`service_role`** key.
+4. Add both to Vercel under **Settings → Environment Variables** (and to `.env.local` for local dev — see [`.env.example`](.env.example)):
 
-The rest of the app only calls `addEntry()` / `getAllEntries()`, so the swap is contained to that one file.
+```
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+5. Redeploy.
+
+**Never give either variable a `NEXT_PUBLIC_` prefix.** The service role key bypasses row-level security; prefixing it would inline it into the JavaScript bundle served to every visitor, handing anyone full read/write access to your allowlist. It's read only in [`lib/storage.ts`](lib/storage.ts), which runs server-side only.
+
+The schema enables row-level security with no policies, so the public anon key can't read the table either — wallets and handles are only reachable via the service role.
+
+### Exporting the list
+
+Supabase dashboard → **Table Editor → allowlist → Export to CSV**. Wallets are unique (re-submitting an address updates the row instead of duplicating it), and the `handle` column is parsed from each quote URL so you can cross-check entries against the post.
+
+### If it isn't configured
+
+The API route returns a 503 and the form shows an error rather than falsely confirming a spot. A silent success over a dropped signup would be worse than an honest failure, so this is deliberate — if you see that error in production, the env vars aren't set.
+
+### Worth knowing
+
+An open allowlist form will attract bots. Nothing here rate-limits or proves the tasks were done — steps 1 and 2 are honour-system, and the quote URL isn't verified against the X API. Before launch consider adding rate limiting and, if spots are valuable, verifying quote URLs against the real post.
 
 ## Project structure
 
