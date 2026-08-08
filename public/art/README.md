@@ -10,7 +10,7 @@ page follows.
 | File | Caption |
 | --- | --- |
 | `cucumber-0001.png` | Robin Hood |
-| `cucumber-0741.png` | Anon |
+| `cucumber-0741.png` | TMA |
 | `cucumber-0025.png` | Punk |
 | `cucumber-0177.png` | The King |
 | `cucumber-0002.png` | Sheriff |
@@ -26,14 +26,17 @@ The grid layout in `MainPage.module.css` is tuned for exactly 12 tiles — if
 you add more, extend the `.shot:nth-child(n)` rules to match, or they'll
 fall back to plain auto-placement (which still works, just less deliberate).
 
-## Optional overrides
+## The plain cucumber
 
-| File | Where it appears | Requirement |
-| --- | --- | --- |
-| `cucumber.png` | Inside the wordmark's **D**, the entry screen, the success popup | **Must be transparent.** Currently falls back to `/public/cucumber-base.png`, which already is. |
-| `hero.png` | Home hero and the Join page | Transparent PNG. Currently falls back to the plain cucumber. |
+The wordmark's **D**, the entry screen, the Home hero, the Join page and the
+success popup all use `/public/cucumber-base.png` — the plain transparent
+cucumber. To swap it, replace that file, or edit the `CUCUMBER` / `HERO`
+chains in [`lib/art.ts`](../../lib/art.ts).
 
-Neither exists yet, and neither needs to — the fallbacks are doing the job.
+⚠️ Only ever list files that **exist** in those chains. A missing file at the
+front costs a 404 on every page load, and since the markup is server-rendered
+it can fail before React hydrates — which previously left the entry screen
+cucumber invisible.
 
 ## A note on file size
 

@@ -9,17 +9,18 @@
 /**
  * Plain cucumber — used in the wordmark's D and on the entry screen.
  * This one must be a TRANSPARENT png: it sits inside a letterform.
+ *
+ * Only list files that exist. A missing file at the front of a chain costs
+ * a 404 on every page load, and because the markup is server-rendered it
+ * can fail before React hydrates — see the note in SmartImage.
  */
 export const CUCUMBER: string[] = [
-  "/art/cucumber.png",
   "/cucumber-base.png",
   "/cucumber-placeholder.svg",
 ];
 
 /** The Home hero and the Join page garnish — the plain cucumber. */
 export const HERO: string[] = [
-  "/art/hero.png",
-  "/art/cucumber.png",
   "/cucumber-base.png",
   "/cucumber-placeholder.svg",
 ];
@@ -38,7 +39,7 @@ export interface ArtItem {
  */
 export const GALLERY: ArtItem[] = [
   { sources: ["/art/cucumber-0001.png"], label: "Robin Hood", id: "0001" },
-  { sources: ["/art/cucumber-0741.png"], label: "Anon", id: "0741" },
+  { sources: ["/art/cucumber-0741.png"], label: "TMA", id: "0741" },
   { sources: ["/art/cucumber-0025.png"], label: "Punk", id: "0025" },
   { sources: ["/art/cucumber-0177.png"], label: "The King", id: "0177" },
   { sources: ["/art/cucumber-0002.png"], label: "Sheriff", id: "0002" },
