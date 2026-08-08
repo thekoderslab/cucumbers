@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import styles from "./MainPage.module.css";
 import SmartImage from "./SmartImage";
@@ -51,6 +51,20 @@ export default function MainPage() {
   const [tab, setTab] = useState<TabId>("home");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  // Tabs are reflected in the URL hash, so /#hood and /#roadmap are
+  // linkable from anywhere (the join page header uses exactly that).
+  useEffect(() => {
+    const fromHash = window.location.hash.replace("#", "");
+    if (TABS.some((t) => t.id === fromHash)) {
+      setTab(fromHash as TabId);
+    }
+  }, []);
+
+  function selectTab(id: TabId) {
+    setTab(id);
+    window.history.replaceState(null, "", id === "home" ? "/" : `/#${id}`);
+  }
+
   function onTabKeyDown(e: React.KeyboardEvent, i: number) {
     const last = TABS.length - 1;
     let next: number | null = null;
@@ -60,7 +74,7 @@ export default function MainPage() {
     else if (e.key === "End") next = last;
     if (next === null) return;
     e.preventDefault();
-    setTab(TABS[next].id);
+    selectTab(TABS[next].id);
     tabRefs.current[next]?.focus();
   }
 
@@ -73,7 +87,7 @@ export default function MainPage() {
           <button
             type="button"
             className={styles.brandBtn}
-            onClick={() => setTab("home")}
+            onClick={() => selectTab("home")}
             aria-label="Cucumber Hood — go to home"
           >
             <Wordmark className={styles.brandMark} stacked={false} />
@@ -93,7 +107,7 @@ export default function MainPage() {
                 aria-selected={tab === t.id}
                 tabIndex={tab === t.id ? 0 : -1}
                 className={`${styles.tab} ${tab === t.id ? styles.tabActive : ""}`}
-                onClick={() => setTab(t.id)}
+                onClick={() => selectTab(t.id)}
                 onKeyDown={(e) => onTabKeyDown(e, i)}
               >
                 {t.label}
@@ -152,7 +166,7 @@ export default function MainPage() {
                   <button
                     type="button"
                     className={styles.ctaGhost}
-                    onClick={() => setTab("hood")}
+                    onClick={() => selectTab("hood")}
                   >
                     Sneak peek
                   </button>

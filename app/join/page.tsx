@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "./join.module.css";
+import EntryGate from "@/components/EntryGate";
 import JoinFlow from "@/components/JoinFlow";
 import Wordmark from "@/components/Wordmark";
 import SmartImage from "@/components/SmartImage";
@@ -15,59 +16,86 @@ export const metadata: Metadata = {
 
 export default function JoinPage() {
   return (
-    <div className={styles.page}>
-      <div className={styles.dots} aria-hidden="true" />
+    <EntryGate>
+      <div className={styles.page}>
+        <div className={styles.dots} aria-hidden="true" />
 
-      <header className={styles.header}>
-        <Link href="/" className={styles.brand}>
-          <Wordmark className={styles.brandMark} stacked={false} />
-        </Link>
-        <div className={styles.headerLinks}>
-          <a
-            className={styles.navLink}
-            href={X_PROFILE}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            X
-          </a>
-          <a
-            className={styles.navLink}
-            href={DISCORD}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Discord
-          </a>
-        </div>
-      </header>
+        <header className={styles.header}>
+          <div className={styles.headerInner}>
+            <Link href="/" className={styles.brand}>
+              <Wordmark className={styles.brandMark} stacked={false} />
+            </Link>
 
-      <main className={styles.main}>
-        <div className={styles.grid}>
-          <div className={styles.card}>
-            <span className={styles.kicker}>Allowlist open</span>
-            <h1 className={styles.title}>Join the Hood</h1>
-            <p className={styles.sub}>
-              Four quick steps to lock your spot. No pressure, just vibes.
-            </p>
-            <JoinFlow />
+            <nav className={styles.nav} aria-label="Sections">
+              <Link href="/" className={styles.navTab}>
+                Home
+              </Link>
+              <Link href="/#hood" className={styles.navTab}>
+                The Hood
+              </Link>
+              <Link href="/#roadmap" className={styles.navTab}>
+                Roadmap
+              </Link>
+              <span className={styles.navTabActive} aria-current="page">
+                Join
+              </span>
+            </nav>
+
+            <div className={styles.headerLinks}>
+              <a
+                className={styles.navLink}
+                href={X_PROFILE}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                X
+              </a>
+              <a
+                className={styles.navLink}
+                href={DISCORD}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Discord
+              </a>
+            </div>
           </div>
+        </header>
 
-          <aside className={styles.aside}>
-            <SmartImage sources={HERO} alt="" className={styles.art} eager />
-            <span className={styles.sticker}>see you at mint</span>
-          </aside>
-        </div>
-      </main>
+        <main className={styles.main}>
+          <div className={styles.grid}>
+            <div className={styles.card}>
+              <span className={styles.kicker}>Allowlist open</span>
+              <h1 className={styles.title}>Join the Hood</h1>
+              <p className={styles.sub}>
+                Four quick steps to lock your spot. No pressure, just vibes.
+              </p>
+              <JoinFlow />
+            </div>
 
-      <footer className={styles.footer}>
-        <Link href="/" className={styles.backLink}>
-          ← Back to Cucumber Hood
-        </Link>
-        <p className={styles.footerNote}>
-          Cucumber Hood — native to Robinhood Chain
-        </p>
-      </footer>
-    </div>
+            <aside className={styles.aside}>
+              <div className={styles.artWrap}>
+                <SmartImage
+                  sources={HERO}
+                  alt=""
+                  className={styles.art}
+                  eager
+                />
+                <span className={styles.sticker}>see you at mint</span>
+              </div>
+            </aside>
+          </div>
+        </main>
+
+        <footer className={styles.footer}>
+          <Link href="/" className={styles.backLink}>
+            ← Back to Cucumber Hood
+          </Link>
+          <p className={styles.footerNote}>
+            Cucumber Hood — native to Robinhood Chain
+          </p>
+        </footer>
+      </div>
+    </EntryGate>
   );
 }

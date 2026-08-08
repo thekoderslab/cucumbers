@@ -18,10 +18,9 @@ export const CUCUMBER: string[] = [
   "/cucumber-placeholder.svg",
 ];
 
-/** The character on the Home hero. */
+/** The Home hero and the Join page garnish — the plain cucumber. */
 export const HERO: string[] = [
   "/art/hero.png",
-  "/art/punk.png",
   "/art/cucumber.png",
   "/cucumber-base.png",
   "/cucumber-placeholder.svg",
