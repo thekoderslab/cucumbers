@@ -21,8 +21,8 @@ export const X_POST =
 /** OpenSea collection. TODO: replace "#" with the real URL when it's live. */
 export const OPENSEA = "#";
 
-/** Public site URL, used in the share text. */
-export const SITE = "cucumbershoodnft.com";
+/** Public site domain, used in the share and quote copy. */
+export const SITE = "cucumberhoodnft.xyz";
 
 /** Text pre-filled into the share composer after someone joins. */
 export const SHARE_TEXT = `I got the spot in @${X_HANDLE} go get yours at ${SITE}/join now.`;
@@ -33,7 +33,7 @@ export const SHARE_TEXT = `I got the spot in @${X_HANDLE} go get yours at ${SITE
  */
 export const QUOTE_TEXT = `just a chill cucumber i love these @${X_HANDLE}
 want your spot? go get it 🥒
-cucumberhoodnft.xyz`;
+${SITE}`;
 
 /*
  * X Web Intents — these open a small action dialog (follow / like / repost /

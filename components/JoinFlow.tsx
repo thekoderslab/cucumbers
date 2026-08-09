@@ -132,7 +132,6 @@ export default function JoinFlow() {
           <span className={styles.taskNum}>{engaged ? "✓" : "2"}</span>
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Like and repost the post</h3>
-            <p className={styles.taskHint}>Both, please. It only takes a sec.</p>
             <div className={styles.taskActions}>
               <button
                 type="button"
@@ -163,10 +162,6 @@ export default function JoinFlow() {
           <span className={styles.taskNum}>{quoteValid ? "✓" : "3"}</span>
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Quote the post</h3>
-            <p className={styles.taskHint}>
-              Opens a post box already written for you — edit it if you like,
-              post it, then paste the link to <em>your</em> quote below.
-            </p>
             <button
               type="button"
               className={`${styles.taskAction} ${quoteOpened ? styles.taskActionDone : ""}`}

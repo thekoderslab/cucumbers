@@ -89,14 +89,6 @@
   line-height: 1.25;
 }
 
-.taskHint {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--ink-mid);
-  line-height: 1.45;
-}
-
 .taskActions {
   display: flex;
   flex-wrap: wrap;
