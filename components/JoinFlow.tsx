@@ -164,8 +164,8 @@ export default function JoinFlow() {
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Quote the post</h3>
             <p className={styles.taskHint}>
-              Opens a post box with the link attached — whatever you write
-              becomes a quote. Then paste the link to <em>your</em> quote below.
+              Opens a post box already written for you — edit it if you like,
+              post it, then paste the link to <em>your</em> quote below.
             </p>
             <button
               type="button"

@@ -27,6 +27,14 @@ export const SITE = "cucumbershoodnft.com";
 /** Text pre-filled into the share composer after someone joins. */
 export const SHARE_TEXT = `I got the spot in @${X_HANDLE} go get yours at ${SITE}/join now.`;
 
+/**
+ * Text pre-filled into the quote composer for task 3. X appends the post URL
+ * after this, which is what turns the post into a quote.
+ */
+export const QUOTE_TEXT = `just a chill cucumber i love these @${X_HANDLE}
+want your spot? go get it 🥒
+cucumberhoodnft.xyz`;
+
 /*
  * X Web Intents — these open a small action dialog (follow / like / repost /
  * composer) instead of just landing on the page, so the user is one click
@@ -54,11 +62,13 @@ export function repostIntentUrl(): string {
 }
 
 /**
- * Opens the composer with the post attached, which makes whatever they write
- * a quote post — saving them from having to find the quote button.
+ * Opens the composer pre-filled with QUOTE_TEXT and the post attached, so
+ * posting it produces a quote — saving them from writing anything or hunting
+ * for the quote button. They can still edit the text before posting.
  */
 export function quoteIntentUrl(): string {
-  return `https://x.com/intent/post?url=${encodeURIComponent(X_POST)}`;
+  const params = new URLSearchParams({ text: QUOTE_TEXT, url: X_POST });
+  return `https://x.com/intent/post?${params.toString()}`;
 }
 
 /** Opens the composer pre-filled — the user still hits post themselves. */
