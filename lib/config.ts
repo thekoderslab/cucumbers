@@ -16,7 +16,7 @@ export const X_PROFILE = `https://x.com/${X_HANDLE}`;
  * parsed out of it to build the like/repost intents.
  */
 export const X_POST =
-  "https://x.com/CucumberHoodNFT/status/2086223787532734812";
+  "https://x.com/CucumberHoodNFT/status/2086394642853970314";
 
 /** OpenSea collection. TODO: replace "#" with the real URL when it's live. */
 export const OPENSEA = "#";
