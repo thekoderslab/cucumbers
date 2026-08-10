@@ -37,3 +37,8 @@ as $$
    where referral_code = code
   returning points;
 $$;
+
+-- PostgREST caches the table's columns. Without this it can keep answering
+-- "Could not find the 'referral_code' column ... in the schema cache" for a
+-- while after the columns genuinely exist.
+notify pgrst, 'reload schema';
