@@ -24,8 +24,11 @@ export const OPENSEA = "#";
 /** Public site domain, used in the share and quote copy. */
 export const SITE = "cucumberhoodnft.xyz";
 
-/** Text pre-filled into the share composer after someone joins. */
-export const SHARE_TEXT = `I got the spot in @${X_HANDLE} go get yours at ${SITE}/join now.`;
+/**
+ * Text pre-filled into the share composer after someone joins. X appends the
+ * link after this, so the URL isn't repeated in the text itself.
+ */
+export const SHARE_TEXT = `I got my spot in @${X_HANDLE} 🥒 go get yours:`;
 
 /**
  * Text pre-filled into the quote composer for task 3. X appends the post URL
@@ -71,9 +74,18 @@ export function quoteIntentUrl(): string {
   return `https://x.com/intent/post?${params.toString()}`;
 }
 
-/** Opens the composer pre-filled — the user still hits post themselves. */
-export function shareIntentUrl(): string {
-  const params = new URLSearchParams({ text: SHARE_TEXT, url: X_POST });
+/**
+ * Opens the composer pre-filled — the user still hits post themselves.
+ *
+ * Shares their own referral link when they have one, so every share can earn
+ * them points. Falls back to the plain join page if it's somehow missing,
+ * rather than sharing nothing.
+ */
+export function shareIntentUrl(referralUrl?: string): string {
+  const params = new URLSearchParams({
+    text: SHARE_TEXT,
+    url: referralUrl || `https://${SITE}/join`,
+  });
   return `https://x.com/intent/post?${params.toString()}`;
 }
 
