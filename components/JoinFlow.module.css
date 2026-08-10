@@ -52,6 +52,23 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
+/* Steps unlock in order. Dimmed rather than hidden, so people can see
+   what's coming and that the list is finite. */
+.taskLocked {
+  opacity: 0.45;
+  box-shadow: none;
+  border-style: dashed;
+}
+
+.lockNote {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-mid);
+}
+
 .taskNum {
   flex: 0 0 auto;
   width: 34px;
@@ -111,14 +128,24 @@
   transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 
-.taskAction:hover {
+.taskAction:hover:not(:disabled) {
   transform: translate(-2px, -2px);
   box-shadow: var(--sh);
 }
 
-.taskAction:active {
+.taskAction:active:not(:disabled) {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 var(--ink);
+}
+
+.taskAction:disabled {
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.taskAction:disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .taskActionDone {

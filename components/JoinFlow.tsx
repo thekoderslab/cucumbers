@@ -38,10 +38,14 @@ export default function JoinFlow() {
   const quoteValid = isXStatusUrl(quoteUrl);
   const walletValid = isEvmAddress(wallet);
   const engaged = liked && reposted;
-  const done = [followed, engaged, quoteValid, walletValid].filter(
-    Boolean
-  ).length;
-  const ready = done === 4;
+
+  // Every step is required and they unlock in order — each one opens only
+  // once the one before it is complete.
+  const steps = [followed, engaged, quoteValid, walletValid];
+  const unlocked = steps.map((_, i) => i === 0 || steps[i - 1]);
+
+  const done = steps.filter(Boolean).length;
+  const ready = done === steps.length;
 
   // Move focus into the dialog when it opens, and close it on Escape.
   useEffect(() => {
@@ -128,13 +132,17 @@ export default function JoinFlow() {
         </div>
 
         {/* 2 — like + repost (two separate X intents) */}
-        <div className={`${styles.task} ${engaged ? styles.taskDone : ""}`}>
+        <div
+          className={`${styles.task} ${engaged ? styles.taskDone : ""} ${!unlocked[1] ? styles.taskLocked : ""}`}
+          aria-disabled={!unlocked[1]}
+        >
           <span className={styles.taskNum}>{engaged ? "✓" : "2"}</span>
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Like and repost the post</h3>
             <div className={styles.taskActions}>
               <button
                 type="button"
+                disabled={!unlocked[1]}
                 className={`${styles.taskAction} ${liked ? styles.taskActionDone : ""}`}
                 onClick={() => {
                   openTab(likeIntentUrl());
@@ -145,6 +153,7 @@ export default function JoinFlow() {
               </button>
               <button
                 type="button"
+                disabled={!unlocked[1]}
                 className={`${styles.taskAction} ${reposted ? styles.taskActionDone : ""}`}
                 onClick={() => {
                   openTab(repostIntentUrl());
@@ -154,16 +163,23 @@ export default function JoinFlow() {
                 {reposted ? "Reposted ✓" : "Repost"}
               </button>
             </div>
+            {!unlocked[1] && (
+              <p className={styles.lockNote}>Finish step 1 first</p>
+            )}
           </div>
         </div>
 
         {/* 3 — quote, then paste the quote's URL */}
-        <div className={`${styles.task} ${quoteValid ? styles.taskDone : ""}`}>
+        <div
+          className={`${styles.task} ${quoteValid ? styles.taskDone : ""} ${!unlocked[2] ? styles.taskLocked : ""}`}
+          aria-disabled={!unlocked[2]}
+        >
           <span className={styles.taskNum}>{quoteValid ? "✓" : "3"}</span>
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Quote the post</h3>
             <button
               type="button"
+              disabled={!unlocked[2]}
               className={`${styles.taskAction} ${quoteOpened ? styles.taskActionDone : ""}`}
               onClick={() => {
                 openTab(quoteIntentUrl());
@@ -184,7 +200,7 @@ export default function JoinFlow() {
               className={styles.input}
               placeholder="https://x.com/you/status/..."
               value={quoteUrl}
-              disabled={!quoteOpened}
+              disabled={!unlocked[2] || !quoteOpened}
               onChange={(e) => setQuoteUrl(e.target.value)}
               onBlur={() => setTouched((t) => ({ ...t, quote: true }))}
             />
@@ -193,11 +209,17 @@ export default function JoinFlow() {
                 That doesn&apos;t look like an X post link.
               </p>
             )}
+            {!unlocked[2] && (
+              <p className={styles.lockNote}>Finish step 2 first</p>
+            )}
           </div>
         </div>
 
         {/* 4 — wallet */}
-        <div className={`${styles.task} ${walletValid ? styles.taskDone : ""}`}>
+        <div
+          className={`${styles.task} ${walletValid ? styles.taskDone : ""} ${!unlocked[3] ? styles.taskLocked : ""}`}
+          aria-disabled={!unlocked[3]}
+        >
           <span className={styles.taskNum}>{walletValid ? "✓" : "4"}</span>
           <div className={styles.taskBody}>
             <h3 className={styles.taskTitle}>Add your EVM wallet</h3>
@@ -213,6 +235,7 @@ export default function JoinFlow() {
               className={styles.input}
               placeholder="0x..."
               value={wallet}
+              disabled={!unlocked[3]}
               onChange={(e) => {
                 setWallet(e.target.value);
                 setDuplicate(false);
@@ -229,6 +252,9 @@ export default function JoinFlow() {
                 This wallet is already on the allowlist — you&apos;re in. Use a
                 different wallet if you&apos;re entering for someone else.
               </p>
+            )}
+            {!unlocked[3] && (
+              <p className={styles.lockNote}>Finish step 3 first</p>
             )}
           </div>
         </div>
