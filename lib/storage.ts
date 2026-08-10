@@ -30,6 +30,7 @@ export interface Referrer {
   wallet: string;
   handle?: string;
   referralCode: string;
+  points: number;
 }
 
 export interface LeaderboardRow {
@@ -172,13 +173,13 @@ export async function findByReferralCode(
     const entries = await readFileEntries();
     const row = entries.find((e) => e.referralCode === code);
     return row
-      ? { wallet: row.wallet, handle: row.handle, referralCode: code }
+      ? { wallet: row.wallet, handle: row.handle, referralCode: code, points: 0 }
       : null;
   }
 
   const { data } = await db
     .from("allowlist")
-    .select("wallet, handle, referral_code")
+    .select("wallet, handle, referral_code, points")
     .eq("referral_code", code)
     .maybeSingle();
 
@@ -187,6 +188,7 @@ export async function findByReferralCode(
         wallet: data.wallet,
         handle: data.handle ?? undefined,
         referralCode: data.referral_code,
+        points: data.points ?? 0,
       }
     : null;
 }

@@ -4,9 +4,10 @@ import styles from "./join.module.css";
 import EntryGate from "@/components/EntryGate";
 import JoinFlow from "@/components/JoinFlow";
 import Wordmark from "@/components/Wordmark";
-import SmartImage from "@/components/SmartImage";
-import { HERO } from "@/lib/art";
+import ReferrerCard from "@/components/ReferrerCard";
+import Leaderboard from "@/components/Leaderboard";
 import { X_PROFILE, OPENSEA, externalLinkProps } from "@/lib/config";
+import { POINTS_PER_REFERRAL, GTD_SPOTS } from "@/lib/referral";
 
 export const metadata: Metadata = {
   title: "Join the Hood — Cucumber Hood",
@@ -72,14 +73,18 @@ export default function JoinPage() {
             </div>
 
             <aside className={styles.aside}>
-              <div className={styles.artWrap}>
-                <SmartImage
-                  sources={HERO}
-                  alt=""
-                  className={styles.art}
-                  eager
-                />
-                <span className={styles.sticker}>see you at mint</span>
+              <ReferrerCard />
+
+              <div className={styles.boardCard}>
+                <div className={styles.boardHead}>
+                  <span className={styles.boardKicker}>Top Cucumbers</span>
+                  <h2 className={styles.boardTitle}>Leaderboard</h2>
+                  <p className={styles.boardNote}>
+                    {POINTS_PER_REFERRAL} points per referral. Top {GTD_SPOTS}{" "}
+                    get a guaranteed spot.
+                  </p>
+                </div>
+                <Leaderboard gtdSpots={GTD_SPOTS} />
               </div>
             </aside>
           </div>

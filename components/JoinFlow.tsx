@@ -13,7 +13,8 @@ import {
   shareIntentUrl,
 } from "@/lib/config";
 import { isEvmAddress, isXStatusUrl } from "@/lib/validate";
-import { isReferralCode, POINTS_PER_REFERRAL, GTD_SPOTS } from "@/lib/referral";
+import { POINTS_PER_REFERRAL, GTD_SPOTS } from "@/lib/referral";
+import { useReferralCode } from "@/lib/use-referral-code";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -34,7 +35,7 @@ export default function JoinFlow() {
   const [error, setError] = useState("");
   const [duplicate, setDuplicate] = useState(false);
   const [touched, setTouched] = useState({ quote: false, wallet: false });
-  const [ref, setRef] = useState("");
+  const ref = useReferralCode();
   const [result, setResult] = useState<{
     referralUrl?: string;
     points?: number;
@@ -43,24 +44,6 @@ export default function JoinFlow() {
   const [copied, setCopied] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const linkRef = useRef<HTMLInputElement>(null);
-
-  /*
-   * Capture ?ref= once and keep it in localStorage: people arrive from an X
-   * link, then wander off to X to do the tasks and come back — often via a
-   * fresh tab without the query string. Reading window.location directly
-   * rather than useSearchParams keeps this out of a Suspense boundary.
-   */
-  useEffect(() => {
-    const KEY = "cucumberhood_ref";
-    const fromUrl = new URLSearchParams(window.location.search).get("ref");
-    if (fromUrl && isReferralCode(fromUrl)) {
-      localStorage.setItem(KEY, fromUrl.toUpperCase());
-      setRef(fromUrl.toUpperCase());
-      return;
-    }
-    const stored = localStorage.getItem(KEY);
-    if (stored && isReferralCode(stored)) setRef(stored);
-  }, []);
 
   const quoteValid = isXStatusUrl(quoteUrl);
   const walletValid = isEvmAddress(wallet);
@@ -409,7 +392,7 @@ export default function JoinFlow() {
               <button
                 type="button"
                 className={styles.shareBtn}
-                onClick={() => openTab(shareIntentUrl())}
+                onClick={() => openTab(shareIntentUrl(result.referralUrl))}
               >
                 Share on X
               </button>
