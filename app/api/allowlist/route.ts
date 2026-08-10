@@ -12,7 +12,7 @@ import {
   handleFromStatusUrl,
   statusCreatedAt,
 } from "@/lib/validate";
-import { X_POST, X_HANDLE } from "@/lib/config";
+import { X_POST, X_HANDLE, MAX_QUOTE_AGE_MS } from "@/lib/config";
 import { referralUrl, isReferralCode } from "@/lib/referral";
 import { referralCodeFor } from "@/lib/referral-code";
 
@@ -83,6 +83,23 @@ export async function POST(req: NextRequest) {
   if (quoteAt.getTime() > Date.now() + 5 * 60 * 1000) {
     return NextResponse.json(
       { error: "That doesn't look like a real X post link." },
+      { status: 400 }
+    );
+  }
+
+  /*
+   * The quote has to be fresh. Posting the quote and pasting its link is a
+   * matter of seconds, so a link to something posted hours ago is almost
+   * always an unrelated real post someone found — the gap the snowflake
+   * check can't see. Window lives in config so it can be tightened without
+   * touching this logic.
+   */
+  if (Date.now() - quoteAt.getTime() > MAX_QUOTE_AGE_MS) {
+    return NextResponse.json(
+      {
+        error:
+          "That quote is too old. Post a new quote of the pinned post, then paste its link.",
+      },
       { status: 400 }
     );
   }

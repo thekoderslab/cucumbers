@@ -43,6 +43,32 @@ where post_id is null
    or post_id < 2086223787532734812
 order by created_at;
 
+/* ── 2b. Gap between the quote being posted and the spot being claimed ─────
+ *
+ * The strongest signal available without the X API. A genuine user opens the
+ * composer, posts, copies the link and pastes it — seconds to minutes. A bot
+ * pasting some unrelated real post has no such relationship, so the gap is
+ * hours or days. A negative gap (quote "posted" after the signup) is
+ * impossible outside of clock skew.
+ */
+with parsed as (
+  select
+    id, created_at,
+    to_timestamp(
+      ((nullif((regexp_match(quote_url, '/status/(\d+)'))[1], '')::bigint >> 22)
+        + 1288834974657) / 1000.0
+    ) as quoted_at
+  from public.allowlist
+)
+select
+  count(*) filter (where quoted_at > created_at + interval '1 minute')                       as quote_after_signup,
+  count(*) filter (where created_at - quoted_at <= interval '10 minutes')                    as within_10_min,
+  count(*) filter (where created_at - quoted_at >  interval '10 minutes'
+                     and created_at - quoted_at <= interval '6 hours')                       as within_6_hours,
+  count(*) filter (where created_at - quoted_at >  interval '6 hours')                       as older_than_6_hours,
+  count(*)                                                                                   as total
+from parsed;
+
 -- ── 3. Recycled quote links (one post claiming many spots) ────────────────
 select quote_url, count(*) as wallets, min(created_at) as first_seen
 from public.allowlist

@@ -21,6 +21,17 @@ export const X_POST =
 /** OpenSea collection. TODO: replace "#" with the real URL when it's live. */
 export const OPENSEA = "#";
 
+/**
+ * How old a quote post may be when it's submitted.
+ *
+ * The real flow is: open the composer, post, copy the link, paste it — a
+ * matter of seconds. Requiring freshness is what stops someone pasting any
+ * unrelated real post they found, which is the attack the snowflake check
+ * doesn't catch. Generous enough to survive someone getting distracted
+ * mid-flow; lower it if abuse continues, raise it if real users complain.
+ */
+export const MAX_QUOTE_AGE_MS = 6 * 60 * 60 * 1000; // 6 hours
+
 /** Public site domain, used in the share and quote copy. */
 export const SITE = "cucumberhoodnft.xyz";
 
