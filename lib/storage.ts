@@ -1,11 +1,15 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { POINTS_PER_REFERRAL } from "./referral";
 
 export interface SaveResult {
   persisted: boolean;
   /** The wallet is already on the allowlist. */
   duplicate?: boolean;
+  /** The signup's own referral code, whether newly created or pre-existing. */
+  referralCode?: string;
+  points?: number;
   error?: string;
 }
 
@@ -16,7 +20,23 @@ export interface AllowlistEntry {
   handle?: string;
   followed: boolean;
   reposted: boolean;
+  referralCode: string;
+  /** Referral code this person arrived with, if any. */
+  referredBy?: string;
   createdAt: string;
+}
+
+export interface Referrer {
+  wallet: string;
+  handle?: string;
+  referralCode: string;
+}
+
+export interface LeaderboardRow {
+  /** Already truncated — full addresses never leave the server. */
+  wallet: string;
+  handle?: string;
+  points: number;
 }
 
 /*
@@ -78,16 +98,132 @@ async function addEntrySupabase(
     handle: entry.handle ?? null,
     followed: entry.followed,
     reposted: entry.reposted,
+    referral_code: entry.referralCode,
+    referred_by: entry.referredBy ?? null,
   });
 
   if (error) {
     if (error.code === UNIQUE_VIOLATION) {
-      return { persisted: false, duplicate: true };
+      // Hand back the existing code so a repeat visitor can still get their
+      // referral link instead of hitting a dead end.
+      const existing = await getByWalletSupabase(db, entry.wallet);
+      return {
+        persisted: false,
+        duplicate: true,
+        referralCode: existing?.referralCode,
+        points: existing?.points,
+      };
     }
     console.error("[allowlist] supabase insert failed:", error.message);
     return { persisted: false, error: error.message };
   }
-  return { persisted: true };
+
+  return { persisted: true, referralCode: entry.referralCode, points: 0 };
+}
+
+async function getByWalletSupabase(
+  db: SupabaseClient,
+  wallet: string
+): Promise<{ referralCode: string; points: number } | null> {
+  const { data } = await db
+    .from("allowlist")
+    .select("referral_code, points")
+    .eq("wallet", wallet.trim().toLowerCase())
+    .maybeSingle();
+
+  return data
+    ? { referralCode: data.referral_code, points: data.points ?? 0 }
+    : null;
+}
+
+// ------------------------------------------------------------------ Public
+
+export async function addEntry(entry: AllowlistEntry): Promise<SaveResult> {
+  const db = getClient();
+  return db ? addEntrySupabase(db, entry) : addEntryFile(entry);
+}
+
+/** Who owns this referral code, if anyone. */
+export async function findByReferralCode(
+  code: string
+): Promise<Referrer | null> {
+  const db = getClient();
+  if (!db) {
+    const entries = await readFileEntries();
+    const row = entries.find((e) => e.referralCode === code);
+    return row
+      ? { wallet: row.wallet, handle: row.handle, referralCode: code }
+      : null;
+  }
+
+  const { data } = await db
+    .from("allowlist")
+    .select("wallet, handle, referral_code")
+    .eq("referral_code", code)
+    .maybeSingle();
+
+  return data
+    ? {
+        wallet: data.wallet,
+        handle: data.handle ?? undefined,
+        referralCode: data.referral_code,
+      }
+    : null;
+}
+
+/** Increments the referrer's points. Atomic — see referrals.sql. */
+export async function awardReferralPoint(code: string): Promise<boolean> {
+  const db = getClient();
+  if (!db) return false;
+
+  const { error } = await db.rpc("award_referral_point", {
+    code,
+    amount: POINTS_PER_REFERRAL,
+  });
+
+  if (error) {
+    console.error("[allowlist] award_referral_point failed:", error.message);
+    return false;
+  }
+  return true;
+}
+
+/** How many people are ahead of this score. Only meaningful above zero. */
+export async function rankForPoints(points: number): Promise<number | null> {
+  const db = getClient();
+  if (!db || points <= 0) return null;
+
+  const { count, error } = await db
+    .from("allowlist")
+    .select("*", { count: "exact", head: true })
+    .gt("points", points);
+
+  if (error) return null;
+  return (count ?? 0) + 1;
+}
+
+export async function getLeaderboard(limit = 10): Promise<LeaderboardRow[]> {
+  const db = getClient();
+  if (!db) return [];
+
+  const { data, error } = await db
+    .from("allowlist")
+    .select("wallet, handle, points")
+    .gt("points", 0)
+    .order("points", { ascending: false })
+    .order("created_at", { ascending: true })
+    .limit(limit);
+
+  if (error) {
+    console.error("[allowlist] leaderboard query failed:", error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    wallet: row.wallet,
+    handle: row.handle ?? undefined,
+    points: row.points ?? 0,
+  }));
 }
 
 // --------------------------------------------------------------- JSON file
@@ -109,15 +245,20 @@ async function addEntryFile(entry: AllowlistEntry): Promise<SaveResult> {
   const entries = await readFileEntries();
 
   const key = entry.wallet.toLowerCase();
-  if (entries.some((e) => e.wallet.toLowerCase() === key)) {
-    return { persisted: false, duplicate: true };
+  const existing = entries.find((e) => e.wallet.toLowerCase() === key);
+  if (existing) {
+    return {
+      persisted: false,
+      duplicate: true,
+      referralCode: existing.referralCode,
+    };
   }
   entries.push({ ...entry, wallet: key });
 
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(DATA_FILE, JSON.stringify(entries, null, 2), "utf-8");
-    return { persisted: true };
+    return { persisted: true, referralCode: entry.referralCode, points: 0 };
   } catch {
     console.error(
       "[allowlist] no database configured and the filesystem is read-only. " +
@@ -126,13 +267,6 @@ async function addEntryFile(entry: AllowlistEntry): Promise<SaveResult> {
     );
     return { persisted: false, error: "Storage is not configured." };
   }
-}
-
-// ------------------------------------------------------------------ Public
-
-export async function addEntry(entry: AllowlistEntry): Promise<SaveResult> {
-  const db = getClient();
-  return db ? addEntrySupabase(db, entry) : addEntryFile(entry);
 }
 
 export async function getAllEntries(): Promise<AllowlistEntry[]> {
@@ -155,6 +289,8 @@ export async function getAllEntries(): Promise<AllowlistEntry[]> {
     handle: row.handle ?? undefined,
     followed: row.followed,
     reposted: row.reposted,
+    referralCode: row.referral_code,
+    referredBy: row.referred_by ?? undefined,
     createdAt: row.created_at,
   }));
 }

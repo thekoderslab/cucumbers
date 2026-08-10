@@ -6,7 +6,9 @@ import styles from "./MainPage.module.css";
 import SmartImage from "./SmartImage";
 import Wordmark from "./Wordmark";
 import Marquee from "./Marquee";
+import Leaderboard from "./Leaderboard";
 import { HERO, GALLERY } from "@/lib/art";
+import { POINTS_PER_REFERRAL, GTD_SPOTS } from "@/lib/referral";
 import { X_PROFILE, OPENSEA, externalLinkProps } from "@/lib/config";
 
 const MARQUEE = [
@@ -20,6 +22,7 @@ const TABS = [
   { id: "home", label: "Home" },
   { id: "hood", label: "The Hood" },
   { id: "roadmap", label: "Roadmap" },
+  { id: "leaderboard", label: "Leaderboard" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -289,6 +292,37 @@ export default function MainPage() {
             </div>
 
             <Marquee items={MARQUEE} />
+          </section>
+        )}
+
+        {/* ---------------- LEADERBOARD ---------------- */}
+        {tab === "leaderboard" && (
+          <section
+            role="tabpanel"
+            id="panel-leaderboard"
+            aria-labelledby="tab-leaderboard"
+            className={styles.panel}
+          >
+            <div className={styles.roadHead}>
+              <span className={styles.kicker}>Top Cucumbers</span>
+              <h2 className={styles.bigTitle}>Leaderboard</h2>
+              <p className={styles.leadText}>
+                {POINTS_PER_REFERRAL} points per referral. The top {GTD_SPOTS}{" "}
+                hold a guaranteed whitelist spot — hold your place or lose it.
+              </p>
+            </div>
+
+            <div className={styles.boardWrap}>
+              <Leaderboard gtdSpots={GTD_SPOTS} />
+            </div>
+
+            <div className={styles.hoodCta}>
+              <Link href="/join" className={styles.cta}>
+                Get your referral link
+              </Link>
+            </div>
+
+            <Marquee items={MARQUEE} reverse />
           </section>
         )}
       </main>

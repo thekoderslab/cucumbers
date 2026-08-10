@@ -13,6 +13,7 @@ import {
   shareIntentUrl,
 } from "@/lib/config";
 import { isEvmAddress, isXStatusUrl } from "@/lib/validate";
+import { isReferralCode, POINTS_PER_REFERRAL, GTD_SPOTS } from "@/lib/referral";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -33,7 +34,33 @@ export default function JoinFlow() {
   const [error, setError] = useState("");
   const [duplicate, setDuplicate] = useState(false);
   const [touched, setTouched] = useState({ quote: false, wallet: false });
+  const [ref, setRef] = useState("");
+  const [result, setResult] = useState<{
+    referralUrl?: string;
+    points?: number;
+    rank?: number | null;
+  }>({});
+  const [copied, setCopied] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const linkRef = useRef<HTMLInputElement>(null);
+
+  /*
+   * Capture ?ref= once and keep it in localStorage: people arrive from an X
+   * link, then wander off to X to do the tasks and come back — often via a
+   * fresh tab without the query string. Reading window.location directly
+   * rather than useSearchParams keeps this out of a Suspense boundary.
+   */
+  useEffect(() => {
+    const KEY = "cucumberhood_ref";
+    const fromUrl = new URLSearchParams(window.location.search).get("ref");
+    if (fromUrl && isReferralCode(fromUrl)) {
+      localStorage.setItem(KEY, fromUrl.toUpperCase());
+      setRef(fromUrl.toUpperCase());
+      return;
+    }
+    const stored = localStorage.getItem(KEY);
+    if (stored && isReferralCode(stored)) setRef(stored);
+  }, []);
 
   const quoteValid = isXStatusUrl(quoteUrl);
   const walletValid = isEvmAddress(wallet);
@@ -58,6 +85,31 @@ export default function JoinFlow() {
     return () => window.removeEventListener("keydown", onKey);
   }, [status]);
 
+  /*
+   * navigator.clipboard needs a secure context and isn't available in every
+   * in-app browser (X's webview on iOS especially), so fall back to selecting
+   * the input and using execCommand. Deprecated, but it's what still works
+   * where the modern API doesn't.
+   */
+  async function copyLink() {
+    const url = result.referralUrl;
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const el = linkRef.current;
+      if (el) {
+        el.removeAttribute("readonly");
+        el.select();
+        el.setSelectionRange(0, url.length);
+        document.execCommand("copy");
+        el.setAttribute("readonly", "true");
+      }
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setTouched({ quote: true, wallet: true });
@@ -80,17 +132,32 @@ export default function JoinFlow() {
           quoteUrl: quoteUrl.trim(),
           followed,
           reposted,
+          ref,
         }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         // 409 = this wallet already has a spot. Called out on the wallet
-        // field itself rather than buried in the generic error line.
-        if (res.status === 409) setDuplicate(true);
+        // field itself rather than buried in the generic error line. Their
+        // referral link still comes back, so show the success panel anyway.
+        if (res.status === 409) {
+          setDuplicate(true);
+          if (data.referralUrl) {
+            setResult({ referralUrl: data.referralUrl, points: data.points });
+            setStatus("success");
+            return;
+          }
+        }
         throw new Error(data.error || "Something went wrong. Try again.");
       }
 
+      setResult({
+        referralUrl: data.referralUrl,
+        points: data.points ?? 0,
+        rank: data.rank ?? null,
+      });
       setStatus("success");
     } catch (err) {
       setStatus("error");
@@ -293,11 +360,47 @@ export default function JoinFlow() {
               eager
             />
             <h2 id="join-success-title" className={styles.modalTitle}>
-              Congrats — you&apos;re in the Hood.
+              {duplicate
+                ? "You're already in the Hood."
+                : "Congrats — you're in the Hood."}
             </h2>
             <p className={styles.modalText}>
               Your spot is saved. See you at mint.
             </p>
+
+            {result.referralUrl && (
+              <div className={styles.referral}>
+                <p className={styles.referralExplainer}>
+                  Refer a friend and get {POINTS_PER_REFERRAL} points — top{" "}
+                  {GTD_SPOTS} point holders get a guaranteed whitelist spot.
+                </p>
+
+                <div className={styles.referralRow}>
+                  <input
+                    ref={linkRef}
+                    className={styles.referralInput}
+                    value={result.referralUrl}
+                    readOnly
+                    onFocus={(e) => e.currentTarget.select()}
+                    aria-label="Your referral link"
+                  />
+                  <button
+                    type="button"
+                    className={styles.copyBtn}
+                    onClick={copyLink}
+                  >
+                    {copied ? "Copied!" : "Copy Link"}
+                  </button>
+                </div>
+
+                <p className={styles.referralStats}>
+                  You have <strong>{result.points ?? 0}</strong>{" "}
+                  {result.points === 1 ? "point" : "points"} —{" "}
+                  {result.rank ? `rank #${result.rank}` : "rank unranked"}
+                </p>
+              </div>
+            )}
+
             <div className={styles.modalActions}>
               <button
                 type="button"

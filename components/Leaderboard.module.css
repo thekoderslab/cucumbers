@@ -1,0 +1,112 @@
+.board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 14px 16px;
+  border: var(--bd);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: var(--sh-sm);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.row:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sh);
+}
+
+/* Everyone currently holding a guaranteed spot. */
+.gtd {
+  border-width: 4px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.rank {
+  font-family: var(--font-heading);
+  font-size: clamp(1rem, 3.4vw, 1.35rem);
+  line-height: 1;
+  min-width: 1.6em;
+  text-align: center;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.handle {
+  font-family: var(--font-heading);
+  font-size: clamp(0.72rem, 2.4vw, 0.88rem);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a.handle:hover {
+  text-decoration: underline;
+}
+
+.wallet {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-mid);
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  grid-column: 2 / 3;
+  justify-self: start;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+
+@media (min-width: 560px) {
+  .row {
+    grid-template-columns: auto 1fr auto auto;
+  }
+  .badge {
+    grid-column: auto;
+    justify-self: end;
+  }
+}
+
+.points {
+  font-family: var(--font-heading);
+  font-size: clamp(1rem, 3.4vw, 1.3rem);
+  line-height: 1;
+  justify-self: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  margin: 0;
+  padding: 26px 22px;
+  border: var(--bd);
+  border-style: dashed;
+  border-radius: var(--r-md);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  line-height: 1.5;
+  text-align: center;
+}

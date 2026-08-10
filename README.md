@@ -100,6 +100,27 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 The schema enables row-level security with no policies, so the public anon key can't read the table either — wallets and handles are only reachable via the service role.
 
+## Referral system
+
+Run [`supabase/referrals.sql`](supabase/referrals.sql) in the SQL Editor **after** `schema.sql`. It adds `referral_code`, `referred_by` and `points`, plus an `award_referral_point` function. Safe to re-run.
+
+**How it works**
+
+- Every signup gets a referral code derived from their wallet (`sha256(wallet)`, first 8 hex chars, uppercased). Deriving rather than randomising means the same wallet always yields the same code, re-submitting can't mint a second one, and there's no generate-check-retry loop against the unique index.
+- Their link is `https://<SITE>/join?ref=CODE`, shown on the success screen with a copy button.
+- Arriving with `?ref=` stores the code in `localStorage`, so it survives the round trip to X and back — people routinely return in a fresh tab without the query string.
+- On a successful signup the referrer gets **10 points**. Top **10** hold a guaranteed spot.
+
+**Points are awarded in the database, not the API.** Read-add-write from the route would silently drop awards whenever two referrals landed at once — both reads see the same value, the second write overwrites the first. `award_referral_point` does it in a single `UPDATE`.
+
+**Anti-abuse.** A referral only scores when the new signup passes the checks the funnel already requires — follow, repost, and a valid X post URL for the quote. A bare API POST earns nothing. Self-referral is blocked on wallet **and** on X handle, so the same account on a second wallet doesn't count.
+
+⚠️ **Steps 1 and 2 remain honour-system.** X doesn't expose follow/repost state without API credentials and OAuth, so the button click is taken at face value. The quote URL is the only real evidence — it's a live post that must exist and parse. With points now worth something, expect people to farm with multiple wallets: fresh wallets are free, and only the X account is any friction. Before this matters, consider rate limiting by IP and reviewing the top of the leaderboard by hand against the actual quote posts.
+
+### Leaderboard
+
+`/api/leaderboard` returns the top 10 by points, server-side via the service role — RLS stays locked, and wallets are truncated before they leave the server. The Leaderboard tab polls every 30s while open.
+
 ### Exporting the list
 
 Supabase dashboard → **Table Editor → allowlist → Export to CSV**. Wallets are unique (re-submitting an address updates the row instead of duplicating it), and the `handle` column is parsed from each quote URL so you can cross-check entries against the post.

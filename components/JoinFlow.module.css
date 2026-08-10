@@ -322,6 +322,83 @@
   line-height: 1.5;
 }
 
+/* ---------- Referral block ---------- */
+
+.referral {
+  margin: 0 0 20px;
+  padding: 18px 16px;
+  border: var(--bd);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.4);
+  text-align: left;
+}
+
+.referralExplainer {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.referralRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.referralInput {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: var(--bd);
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  outline: none;
+  /* iOS zooms the page on focus below 16px, but this field is read-only and
+     select-on-focus, so the text is never typed into. */
+  text-overflow: ellipsis;
+}
+
+.copyBtn {
+  flex: 0 0 auto;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  padding: 13px 16px;
+  border: var(--bd);
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: var(--bg);
+  cursor: pointer;
+  transition: transform 0.14s ease;
+}
+
+.copyBtn:hover {
+  transform: translateY(-2px);
+}
+
+.copyBtn:active {
+  transform: translateY(1px);
+}
+
+.referralStats {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-mid);
+}
+
+.referralStats strong {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
 .modalActions {
   display: flex;
   flex-direction: column;
