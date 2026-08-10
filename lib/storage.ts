@@ -143,6 +143,26 @@ export async function addEntry(entry: AllowlistEntry): Promise<SaveResult> {
   return db ? addEntrySupabase(db, entry) : addEntryFile(entry);
 }
 
+/**
+ * Has this exact quote post already been used to claim a spot? Two people
+ * cannot own the same post, so a repeat means one wallet is recycling
+ * another's link — the cheapest way to fake the quote step.
+ */
+export async function quoteUrlTaken(quoteUrl: string): Promise<boolean> {
+  const db = getClient();
+  if (!db) {
+    const entries = await readFileEntries();
+    return entries.some((e) => e.quoteUrl === quoteUrl);
+  }
+
+  const { count } = await db
+    .from("allowlist")
+    .select("*", { count: "exact", head: true })
+    .eq("quote_url", quoteUrl);
+
+  return (count ?? 0) > 0;
+}
+
 /** Who owns this referral code, if anyone. */
 export async function findByReferralCode(
   code: string

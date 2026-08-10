@@ -139,11 +139,15 @@ export default function JoinFlow() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        // 409 = this wallet already has a spot. Called out on the wallet
-        // field itself rather than buried in the generic error line. Their
-        // referral link still comes back, so show the success panel anyway.
-        if (res.status === 409) {
+        /*
+         * Keyed off the explicit flag, not the 409 status — a reused quote
+         * link also answers 409, and showing "this wallet is already
+         * registered" for that would send people chasing the wrong problem.
+         */
+        if (data.duplicate === true) {
           setDuplicate(true);
+          // Their referral link comes back too, so show the success panel:
+          // already being in shouldn't cost them access to their own link.
           if (data.referralUrl) {
             setResult({ referralUrl: data.referralUrl, points: data.points });
             setStatus("success");

@@ -4,8 +4,15 @@ import {
   findByReferralCode,
   awardReferralPoint,
   rankForPoints,
+  quoteUrlTaken,
 } from "@/lib/storage";
-import { isEvmAddress, isXStatusUrl, handleFromStatusUrl } from "@/lib/validate";
+import {
+  isEvmAddress,
+  isXStatusUrl,
+  handleFromStatusUrl,
+  statusCreatedAt,
+} from "@/lib/validate";
+import { X_POST, X_HANDLE } from "@/lib/config";
 import { referralUrl, isReferralCode } from "@/lib/referral";
 import { referralCodeFor } from "@/lib/referral-code";
 
@@ -33,6 +40,59 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "That doesn't look like an X post link." },
       { status: 400 }
+    );
+  }
+
+  const quoteHandle = handleFromStatusUrl(quoteUrl);
+
+  // Pasting our own post back instead of their quote of it.
+  if (quoteHandle?.toLowerCase() === X_HANDLE.toLowerCase()) {
+    return NextResponse.json(
+      { error: "That's our post — paste the link to your own quote of it." },
+      { status: 400 }
+    );
+  }
+
+  /*
+   * Post ids are snowflakes, so creation time is readable straight off the
+   * id with no API call. A genuine quote must have been created after the
+   * post it quotes, and can't be from the future. Made-up or recycled ids
+   * fail this without us ever having to ask X whether the post exists.
+   */
+  const campaignAt = statusCreatedAt(X_POST);
+  const quoteAt = statusCreatedAt(quoteUrl);
+
+  if (!quoteAt) {
+    return NextResponse.json(
+      { error: "That doesn't look like a real X post link." },
+      { status: 400 }
+    );
+  }
+
+  if (campaignAt && quoteAt.getTime() < campaignAt.getTime()) {
+    return NextResponse.json(
+      {
+        error:
+          "That post is older than the one you're quoting. Paste the link to your quote.",
+      },
+      { status: 400 }
+    );
+  }
+
+  // Small allowance for clock skew between us and X.
+  if (quoteAt.getTime() > Date.now() + 5 * 60 * 1000) {
+    return NextResponse.json(
+      { error: "That doesn't look like a real X post link." },
+      { status: 400 }
+    );
+  }
+
+  // One post, one spot. Recycling someone else's quote link across wallets
+  // is the cheapest way to fake this step.
+  if (await quoteUrlTaken(quoteUrl)) {
+    return NextResponse.json(
+      { error: "That post has already been used to claim a spot." },
+      { status: 409 }
     );
   }
 
